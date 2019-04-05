@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+  <XMLDB PATH="local/quercus_tasks/db" VERSION="20141018" COMMENT="XMLDB file for Moodle local/quercus_tasks"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+  >
+    <TABLES>
+      <TABLE NAME="local_quercus_tasks_sittings" COMMENT="Holds sitting and attempt info for Quercus tasks">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="assign"/>
+          <FIELD NAME="assign" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" NEXT="sitting" PREVIOUS="id"/>
+          <FIELD NAME="sitting" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" NEXT="sitting_desc" PREVIOUS="assign"/>
+          <FIELD NAME="sitting_desc" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" PREVIOUS="assign"/>
+    		</FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+		  <KEY NAME="assign" TYPE="foreign" FIELDS="assign" REFTABLE="assign" REFFIELDS="id" COMMENT="The assignment instance this sitting relates to." PREVIOUS="primary"/>
+        </KEYS>
+      </TABLE>
+    </TABLES>
+  </XMLDB>
