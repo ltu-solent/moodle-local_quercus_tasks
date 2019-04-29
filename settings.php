@@ -17,7 +17,7 @@
 /**
  * This file defines the admin settings for this plugin
  *
- * @package   local_quercus_tasks 
+ * @package   local_quercus_tasks
  * @copyright 2018 Southampton Solent University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -32,6 +32,7 @@ $settings->add(new admin_setting_configtext('local_quercus_tasks/cutoffinterval'
 $settings->add(new admin_setting_configtext('local_quercus_tasks/gradingdueinterval', 'Grading due date interval in weeks', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/grademarkscale', 'ID of grademark gradescale', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/grademarkexemptscale', 'ID of grademark exempt gradescale', '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/boardbuffer', 'Days after resit board that grades can be released', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/gradinghelpurl', 'Grading help guide URL', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/senderrorto', 'Email to send Turnitin errors to', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/emailfrom', 'Email from address', '', ''));

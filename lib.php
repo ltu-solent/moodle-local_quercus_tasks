@@ -621,7 +621,7 @@ function update_dates(){
 		$xml = simplexml_load_string($result, "SimpleXMLElement", LIBXML_NOCDATA);
 		$json = json_encode($xml);
 		$array = json_decode($json,TRUE);
-var_dump($array);
+
 		foreach($array as $arr=>$elem){
 			foreach($elem as $key=>$value){
 
@@ -695,15 +695,17 @@ var_dump($array);
 
 							}
 
-							if($value["externalDate"] != $assign->externaldate){
-								//Update board date
-								$newboard = new stdClass();
-								$newboard->id = $assign->sitting_id;
-								$newboard->externaldate = $value["externalDate"];
-								$update = $DB->update_record('local_quercus_tasks_sittings', $newboard, $bulk=false);
+							if (isset($value["externalDate"])){
+								if ($value["externalDate"] != $assign->externaldate){
+									//Update board date
+									$newboard = new stdClass();
+									$newboard->id = $assign->sitting_id;
+									$newboard->externaldate = $value["externalDate"];
+									$update = $DB->update_record('local_quercus_tasks_sittings', $newboard, $bulk=false);
+								}
 							}
 
-							if($duedate != $assign->duedate){
+							if($duedate != $assign->duedate || $newboard != $assign->externaldate){
 
 								//Update assignment dates
 								$newdates = new stdClass();
@@ -727,7 +729,8 @@ var_dump($array);
 								$cmobj->modname = 'assign';
 								$refreshevent = course_module_calendar_event_update_process($assignobj, $cmobj);
 								// Output result to cron
-								mtrace('Dates updated for ' . $assign->name . ' in ' . $unit_instance .
+								mtrace('Updated ' . $assign->name . ' in ' . $unit_instance .
+										' - Board: ' . 	date( "d/m/Y h:i", $assign->externaldate) . ' -> ' . date( "d/m/Y h:i", $value["externalDate"]) .
 										' - Due: ' . 		date( "d/m/Y h:i", $assign->duedate) . ' -> ' . date( "d/m/Y h:i", $duedate) .
 										' * Cut off: ' . 	date( "d/m/Y h:i", $assign->cutoffdate) . ' -> ' . date( "d/m/Y h:i", $cutoffdate) .
 										' * Grade: ' . 		date( "d/m/Y h:i", $assign->gradingduedate) . ' -> ' . date( "d/m/Y h:i", $gradingduedate) );
