@@ -14,7 +14,7 @@ class local_create_assign extends assign {
 	}
 }
 
-function insert_assign($course, $assessment_id, $assessment_description, $availableFrom, $duedate, $sitting, $sitting_desc, $formdata_config){
+function insert_assign($course, $assessment_id, $assessment_description, $availableFrom, $duedate, $sitting, $sitting_desc, $externaldate, $formdata_config){
 	global $DB, $CFG;
 
 	$formdata = new stdClass();
@@ -28,7 +28,7 @@ function insert_assign($course, $assessment_id, $assessment_description, $availa
 	$formdata->submissiondrafts = $formdata_config->submissiondrafts;
 	$formdata->sendnotifications = $formdata_config->sendnotifications;
 	$formdata->sendlatenotifications = $formdata_config->sendlatenotifications;
-	
+
 	if($availableFrom != 0){
 		$time = new DateTime('now', core_date::get_user_timezone_object());
 		$time = DateTime::createFromFormat('U', $availableFrom);
@@ -38,37 +38,37 @@ function insert_assign($course, $assessment_id, $assessment_description, $availa
 		$formdata->allowsubmissionsfromdate = $time->getTimestamp() - $dst;
 	}else{
 		$formdata->allowsubmissionsfromdate = time();
-	}	
-	
+	}
+
 	$time = new DateTime('now', core_date::get_user_timezone_object());
 	$time = DateTime::createFromFormat('U', $duedate);
 	$time->setTime(16, 0, 0);
 	$timezone = core_date::get_user_timezone($time);
 	$dst = dst_offset_on($duedate, $timezone);
 	$formdata->duedate = $time->getTimestamp() - $dst;
-	
+
 	// Cut off date
 	$time = new DateTime('now', core_date::get_user_timezone_object());
 	$time = DateTime::createFromFormat('U', $duedate);
 	$timezone = core_date::get_user_timezone($time);
 	$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
 	$cutoffdate  = 	$time->modify($modifystring);
-	$time->setTime(16, 0, 0);		
+	$time->setTime(16, 0, 0);
 	$cutoffdate = $time->getTimestamp();
 	$dst = dst_offset_on($cutoffdate, $timezone);
 	$formdata->cutoffdate = $time->getTimestamp() - $dst;
-	
+
 	// Grading due date
 	$time = new DateTime('now', core_date::get_user_timezone_object());
 	$time = DateTime::createFromFormat('U', $formdata->duedate);
 	$timezone = core_date::get_user_timezone($time);
 	$modifystring = '+' . get_config('local_quercus_tasks', 'gradingdueinterval') . ' week';
 	$gradingduedate  = 	$time->modify($modifystring);
-	$time->setTime(16, 0, 0);		
+	$time->setTime(16, 0, 0);
 	$gradingduedate = $time->getTimestamp();
 	$dst = dst_offset_on($gradingduedate, $timezone);
 	$formdata->gradingduedate = $time->getTimestamp() - $dst;
-			
+
 	$formdata->grade = get_config('local_quercus_tasks', 'grademarkscale') * -1;
 	$formdata->timemodified = 0;
 	$formdata->requiresubmissionstatement = $formdata_config->requiresubmissionstatement;
@@ -143,6 +143,7 @@ function insert_assign($course, $assessment_id, $assessment_description, $availa
 	$sittingrecord->assign = $new_mod;
 	$sittingrecord->sitting = $sitting;
 	$sittingrecord->sitting_desc = $sitting_desc;
+	$sittingrecord->externaldate = $externaldate;
 	$sittingid = $DB->insert_record('local_quercus_tasks_sittings', $sittingrecord, false);
 
 	if (!$sittingid) {
@@ -191,8 +192,9 @@ function create_assignments(){
 				$academicYear = $value["academicYear"];
 				$sitting = $value["sitting"];
 				$sitting_desc = $value["sittingDescription"];
+				$externaldate = $value["externalDate"];
 				$weighting = (float)$value["weighting"] * 100;
-				
+
 				if(isset($value["availableFrom"])){
 					$availableFrom = $value["availableFrom"];
 				}else{
@@ -204,7 +206,7 @@ function create_assignments(){
 				}else{
 					$duedate = 0;
 				}
-				
+
 				if($sitting_desc == 'FIRST_SITTING'){
 					$assessment_description = $value["assessmentDescription"] . ' ('. $weighting . '%)';
 				}else{
@@ -222,7 +224,7 @@ function create_assignments(){
 														AND s.sitting = ?', array($course->id, $assessment_id, $sitting));
 
 						if (!$module){
-							$newcm = insert_assign($course, $assessment_id, $assessment_description, $availableFrom, $duedate, $sitting, $sitting_desc, $assign_config);
+							$newcm = insert_assign($course, $assessment_id, $assessment_description, $availableFrom, $duedate, $sitting, $sitting_desc, $externaldate, $assign_config);
 							if($newcm){
 								mtrace("Created " . $assessment_id . " " . $sitting_desc . " in unit " . $unit_instance);
 							}else{
@@ -368,11 +370,11 @@ function update_log($response){
 						)";
 
 		$error = $val['error'][0]['detail'] ? $val['error'][0]['detail'] : null;
-		
+
 		$params = array($response['ErrorCode'],  $response['ParentRequestId'], $val['requestid'], $val['processed'] ,$error , time(),
 							$val['moduleinstanceid'], $val['academicsession'] . '_' . $val['assessmentcode'], $val['moodlestudentid'], $val['assessmentsittingcode'] );
 		$recordid = $DB->execute($sql, $params);
-	}	
+	}
 }
 
 function get_retry_list(){
@@ -521,22 +523,22 @@ function get_new_grades($lastruntime){
 					$course_module["name"] = $student->firstname;
 					$course_module["surname"] = $student->lastname;
 					$grade = match_grades($allgrades, $student, $grade_info);
-					if($grade == -1){ 
+					if($grade == -1){
 						$course_module["assessmentresult"] = 0;
 					}else{
 						$course_module["assessmentresult"] = $grade;
 					}
-					$data_array[] = $course_module;					
-				
-					if($grade == -1){ 
+					$data_array[] = $course_module;
+
+					if($grade == -1){
 						//Send grade of 0 to Quercus
 						$insertid = insert_log($cm, $sitting, $course, $grade_info, 0, $student);
-						//Send email to helpdesk as tutor has added grade to Turnitin 
-						$message .= get_string('emailmessagestudent', 'local_quercus_tasks', ['idnumber'=>$student->idnumber, 'firstname'=>$student->firstname ,'lastname'=>$student->lastname]) . "\r\n\n";				
-						
+						//Send email to helpdesk as tutor has added grade to Turnitin
+						$message .= get_string('emailmessagestudent', 'local_quercus_tasks', ['idnumber'=>$student->idnumber, 'firstname'=>$student->firstname ,'lastname'=>$student->lastname]) . "\r\n\n";
+
 					}else{
 						$insertid = insert_log($cm, $sitting, $course, $grade_info, $grade, $student);
-						
+
 						if($grade == -1){
 							//send email to helpdesk as tutor has added grade to Turnitin
 							$to      = $USER->email;
@@ -550,31 +552,31 @@ function get_new_grades($lastruntime){
 					}
 				}
 			}
-			
+
 			if(isset($message)){
-				$messagebody = $messageintro . "\r\n\n"; 
+				$messagebody = $messageintro . "\r\n\n";
 				$messagebody .= $tableheader;
 				$messagebody .= $message;
-				$messagebody .= $tablefooter;				
+				$messagebody .= $tablefooter;
 				// Unit leader email
 				//$to      = $grade_info->email;
 				// Support emails
 				// $to      .= ',' . get_config('local_quercus_tasks', 'senderrorto');
 				$to      = get_config('local_quercus_tasks', 'senderrorto');
-				
-				
-				$subject = get_string('emailsubject', 'local_quercus_tasks', ['shortname'=>$course->shortname, 'assign'=>$cm->idnumber]);		 
+
+
+				$subject = get_string('emailsubject', 'local_quercus_tasks', ['shortname'=>$course->shortname, 'assign'=>$cm->idnumber]);
 				$headers = "From: " . get_config('local_quercus_tasks', 'emailfrom') . "\r\n";
 				$headers .= "Reply-To: " . get_config('local_quercus_tasks', 'senderrorto') . "\r\n";
-				$headers .= "MIME-Version: 1.0\r\n"; 
+				$headers .= "MIME-Version: 1.0\r\n";
 				$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-				mail($to, $subject, $messagebody, $headers); 
-				
+				mail($to, $subject, $messagebody, $headers);
+
 				$message = null;
 			}
 		}
 	}
-	
+
 	if(isset($data_array)){
 		return $data_array;
 	}else{
@@ -602,7 +604,7 @@ function export_grades($data_ready){
 	$error_msg = curl_error($ch);
 	$response = json_decode($result, true);
 	curl_close($ch);
-	
+
 	if(isset($response)){
 
 		return $response;
@@ -619,31 +621,31 @@ function update_dates(){
 		$xml = simplexml_load_string($result, "SimpleXMLElement", LIBXML_NOCDATA);
 		$json = json_encode($xml);
 		$array = json_decode($json,TRUE);
-		
+var_dump($array);
 		foreach($array as $arr=>$elem){
 			foreach($elem as $key=>$value){
-				
+
 				$unit_instance = $value['moduleInstance']; //course
 				$academicYear = $value["academicYear"];
 				$assessmentCode = $value["assessmentCode"]; //assignment id
 				$sitting = $value["sitting"];
-				$assessment_id = $academicYear  . '_' . $assessmentCode;				
-				
+				$assessment_id = $academicYear  . '_' . $assessmentCode;
+
 				$course = $DB->get_record('course', array('idnumber' => $unit_instance));
-				
+
 				if($course){
-				
+
 					if($course->startdate > '1533081600'){
-						$assign = $DB->get_record_sql('	SELECT a.*, cm.id cm_id, cm.instance cm_instance
+						$assign = $DB->get_record_sql('	SELECT a.*, cm.id cm_id, cm.instance cm_instance, s.id sitting_id, s.externaldate
 															FROM {course_modules} cm
 															INNER JOIN {local_quercus_tasks_sittings} s ON s.assign = cm.instance
 															INNER JOIN {assign} a ON a.id = cm.instance
 															WHERE cm.course = ?
 															AND cm.idnumber = ?
 															AND s.sitting = ?', array($course->id, $assessment_id, $sitting));
-															
+
 						if($assign){
-							
+
 							// Available from date - date range may have been implemented
 							if(isset($value["availableFrom"])){
 								$availableFrom = $value["availableFrom"];
@@ -657,7 +659,7 @@ function update_dates(){
 							}else{
 								$availableFrom = $assign->allowsubmissionsfromdate;
 							}
-							
+
 							if(isset($value["dueDate"])){
 								// Due date - Update regardless
 								$duedate = $value["dueDate"];
@@ -666,23 +668,23 @@ function update_dates(){
 								$time->setTime(16, 0, 0);
 								$timezone = core_date::get_user_timezone($time);
 								$dst = dst_offset_on($duedate, $timezone);
-								$duedate = $time->getTimestamp() - $dst;												
-							
-								// Cut off date	- Update regardless					
+								$duedate = $time->getTimestamp() - $dst;
+
+								// Cut off date	- Update regardless
 								$time = new DateTime('now', core_date::get_user_timezone_object());
 								$time = DateTime::createFromFormat('U', $value["dueDate"]);
-								$timezone = core_date::get_user_timezone($time);	
+								$timezone = core_date::get_user_timezone($time);
 								$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
 								$cutoffdate  = 	$time->modify($modifystring);
 								$time->setTime(16, 0, 0);
 								$cutoffdate = $time->getTimestamp();
 								$dst = dst_offset_on($cutoffdate, $timezone);
-								$cutoffdate = $time->getTimestamp() - $dst;							
-								
-								// Grading due date	- Update regardless					
+								$cutoffdate = $time->getTimestamp() - $dst;
+
+								// Grading due date	- Update regardless
 								$time = new DateTime('now', core_date::get_user_timezone_object());
 								$time = DateTime::createFromFormat('U', $value["dueDate"]);
-								$timezone = core_date::get_user_timezone($time);							
+								$timezone = core_date::get_user_timezone($time);
 								$modifystring = '+' . get_config('local_quercus_tasks', 'gradingdueinterval') . ' week';
 								$gradingduedate  = 	$time->modify($modifystring);
 								//Set time after date is adjusted in case of dst changeover
@@ -690,26 +692,34 @@ function update_dates(){
 								$gradingduedate = $time->getTimestamp();
 								$dst = dst_offset_on($gradingduedate, $timezone);
 								$gradingduedate = $time->getTimestamp() - $dst;
-																
+
 							}
-							
+
+							if($value["externalDate"] != $assign->externaldate){
+								//Update board date
+								$newboard = new stdClass();
+								$newboard->id = $assign->sitting_id;
+								$newboard->externaldate = $value["externalDate"];
+								$update = $DB->update_record('local_quercus_tasks_sittings', $newboard, $bulk=false);
+							}
+
 							if($duedate != $assign->duedate){
-							
+
 								//Update assignment dates
 								$newdates = new stdClass();
 								$newdates->id = $assign->id;
 								$newdates->duedate = $duedate;
 								$newdates->allowsubmissionsfromdate = $availableFrom;
 								$newdates->cutoffdate = $cutoffdate;
-								$newdates->gradingduedate = $gradingduedate;						
+								$newdates->gradingduedate = $gradingduedate;
 								$update = $DB->update_record('assign', $newdates, $bulk=false);
-								
+
 								//Update completion date
 								$newcompletion = new stdClass();
 								$newcompletion->id = $assign->cm_id;
 								$newcompletion->completionexpected = $duedate;
-								$update = $DB->update_record('course_modules', $newcompletion, $bulk=false);							
-								
+								$update = $DB->update_record('course_modules', $newcompletion, $bulk=false);
+
 								//Update assignment calendar events
 								$assignobj = $DB->get_record('assign', array('id' => $assign->id));
 								$courseobj = $DB->get_record('course', array('id' => $course->id));
@@ -717,16 +727,16 @@ function update_dates(){
 								$cmobj->modname = 'assign';
 								$refreshevent = course_module_calendar_event_update_process($assignobj, $cmobj);
 								// Output result to cron
-								mtrace('Dates updated for ' . $assign->name . ' in ' . $unit_instance . 
+								mtrace('Dates updated for ' . $assign->name . ' in ' . $unit_instance .
 										' - Due: ' . 		date( "d/m/Y h:i", $assign->duedate) . ' -> ' . date( "d/m/Y h:i", $duedate) .
 										' * Cut off: ' . 	date( "d/m/Y h:i", $assign->cutoffdate) . ' -> ' . date( "d/m/Y h:i", $cutoffdate) .
 										' * Grade: ' . 		date( "d/m/Y h:i", $assign->gradingduedate) . ' -> ' . date( "d/m/Y h:i", $gradingduedate) );
-							
+
 							}
 						}
 					}
-				}				
+				}
 			}
-		}			
-	}	
+		}
+	}
 }
