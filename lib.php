@@ -21,7 +21,7 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$formdata = new stdClass();
 	$formdata->id = null;
 	$formdata->course = $course->id;
-	$formdata->name = $assessmentdescription;
+	$formdata->name = $quercusdata->assessmentdescription;
 	$formdata->intro = "";
 	$formdata->introformat = 1;
 	$formdata->alwaysshowdescription = 1;
@@ -30,7 +30,7 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$formdata->sendnotifications = $formdataconfig->sendnotifications;
 	$formdata->sendlatenotifications = $formdataconfig->sendlatenotifications;
 
-	if($availablefrom != 0){
+	if($quercusdata->availablefrom != 0){
 		$time = new DateTime('now', core_date::get_user_timezone_object());
 		$time = DateTime::createFromFormat('U', $quercusdata->availablefrom);
 		$time->setTime(16, 0, 0);
@@ -50,7 +50,7 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 
 	// Cut off date
 	$time = new DateTime('now', core_date::get_user_timezone_object());
-	$time = DateTime::createFromFormat('U', $duedate);
+	$time = DateTime::createFromFormat('U', $quercusdata->duedate);
 	$timezone = core_date::get_user_timezone($time);
 	$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
 	$cutoffdate  = 	$time->modify($modifystring);
@@ -61,7 +61,7 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 
 	// Grading due date
 	$time = new DateTime('now', core_date::get_user_timezone_object());
-	$time = DateTime::createFromFormat('U', $formdata->duedate);
+	$time = DateTime::createFromFormat('U', $quercusdata->duedate);
 	$timezone = core_date::get_user_timezone($time);
 	$modifystring = '+' . get_config('local_quercus_tasks', 'gradingdueinterval') . ' week';
 	$gradingduedate  = 	$time->modify($modifystring);
@@ -106,23 +106,20 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$module->modulename = $modassign->name;
 	$module->instance = $newmod;
 	$module->section = 1; //section id
-	$module->idnumber = $assignmentidnumber;
+	$module->idnumber = $quercusdata->assignmentidnumber;
 	$module->added = 0;
 	$module->score = 0;
 	$module->indent = 0;
-	if($sittingdescription == 'FIRST_SITTING'){
+	if($quercusdata->sittingdescription == 'FIRST_SITTING'){
 		$module->visible = 1;
+		$module->completion = 2;
 	}else{
 		$module->visible = 0;
+		$module->completion = 0;
 	}
 	$module->visibleold = 0;
 	$module->groupmode = 0;
 	$module->groupingid = 0;
-	if($sittingdescription == 'FIRST_SITTING'){
-		$module->completion = 2;
-	}else{
-		$module->completion = 0;
-	}
 	$module->completiongradeitemnumber = null;
 	$module->completionview = 0;
 	$module->completionexpected = $formdata->duedate;
@@ -147,8 +144,8 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	// add sitting data
 	$sittingrecord = new stdClass();
 	$sittingrecord->assign = $newmod;
-	$sittingrecord->sitting = $sitting;
-	$sittingrecord->sittingdescription = $sittingdescription;
+	$sittingrecord->sitting = $quercusdata->sitting;
+	$sittingrecord->sittingdescription = $quercusdata->sittingdescription;
 	$sittingid = $DB->insert_record('local_quercus_tasks_sittings', $sittingrecord, false);
 
 	if (!$sittingid) {
@@ -228,24 +225,24 @@ function create_assignments(){
 														INNER JOIN {local_quercus_tasks_sittings} s ON s.assign = cm.instance
 														WHERE cm.course = ?
 														AND cm.idnumber = ?
-														AND s.sitting = ?', array($course->id, $assignmentidnumber, $quercusdata->sitting));
+														AND s.sitting = ?', array($course->id, $quercusdata->assignmentidnumber, $quercusdata->sitting));
 
 						if (!$module){
 							//$newcm = insert_assign($course, $assignmentidnumber, $assessmentdescription, $availablefrom, $duedate, $sitting, $sittingdescription, $assign_config);
 							$newcm = insert_assign($course, $quercusdata, $assign_config);
 							if($newcm){
-								mtrace("Created " . $quercusdata->assignmentidnumber . " " . $quercusdata->sittingdescription . " in unit " . $quercusdata->unitinstance);
+								mtrace("Created " . $quercusdata->assignmentidnumber . " " . $quercusdata->sittingdescription . " in unit " . $unitinstance);
 							}else{
-								mtrace("Error creating assessment " . $quercusdata->assignmentidnumber. " " . $quercusdata->sittingdescription . " in unit " . $quercusdata->unitinstance);
+								mtrace("Error creating assessment " . $quercusdata->assignmentidnumber. " " . $quercusdata->sittingdescription . " in unit " . $unitinstance);
 							}
 						}else{
-							mtrace("Cannot create " . $quercusdata->assignmentidnumber . " " . $quercusdata->sittingdescription . " in unit " . $quercusdata->unitinstance . " - Assignment already exists");
+							mtrace("Cannot create " . $quercusdata->assignmentidnumber . " " . $quercusdata->sittingdescription . " in unit " . $unitinstance . " - Assignment already exists");
 						}
 					}else{
-						mtrace("Cannot create " . $quercusdata->assignmentidnumber . " " . $quercusdata->sittingdescription . " in unit " . $quercusdata->unitinstance . " - Unit does not exist");
+						mtrace("Cannot create " . $quercusdata->assignmentidnumber . " " . $quercusdata->sittingdescription . " in unit " . $unitinstance . " - Unit does not exist");
 					}
 			}else{
-				mtrace("Cannot create " . $quercusdata->assignmentidnumber . " " . $quercusdata->sittingdescription . " in unit " . $quercusdata->unitinstance . " - No due date provided");
+				mtrace("Cannot create " . $quercusdata->assignmentidnumber . " " . $quercusdata->sittingdescription . " in unit " . $unitinstance . " - No due date provided");
 			}
 			}
 		}
