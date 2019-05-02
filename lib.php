@@ -641,7 +641,7 @@ function update_dates(){
 				if($course){
 
 					if($course->startdate > '1533081600'){
-						$assign = $DB->get_record_sql('	SELECT a.*, cm.id cm_id, cm.instance cm_instance
+						$assign = $DB->get_record_sql('	SELECT a.*, cm.id cm_id, cm.instance cm_instance, s.id sitting_id, s.externaldate
 															FROM {course_modules} cm
 															INNER JOIN {local_quercus_tasks_sittings} s ON s.assign = cm.instance
 															INNER JOIN {assign} a ON a.id = cm.instance
