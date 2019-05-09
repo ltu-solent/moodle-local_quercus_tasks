@@ -30,16 +30,12 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$formdata->sendnotifications = $formdataconfig->sendnotifications;
 	$formdata->sendlatenotifications = $formdataconfig->sendlatenotifications;
 
-	if($quercusdata->availablefrom != 0){
-		$time = new DateTime('now', core_date::get_user_timezone_object());
-		$time = DateTime::createFromFormat('U', $quercusdata->availablefrom);
-		$time->setTime(16, 0, 0);
-		$timezone = core_date::get_user_timezone($time);
-		$dst = dst_offset_on($quercusdata->availablefrom, $timezone);
-		$formdata->allowsubmissionsfromdate = $time->getTimestamp() - $dst;
-	}else{
-		$formdata->allowsubmissionsfromdate = time();
-	}
+	$time = new DateTime('now', core_date::get_user_timezone_object());
+	$time = DateTime::createFromFormat('U', $quercusdata->availablefrom);
+	$time->setTime(16, 0, 0);
+	$timezone = core_date::get_user_timezone($time);
+	$dst = dst_offset_on($quercusdata->availablefrom, $timezone);
+	$formdata->allowsubmissionsfromdate = $time->getTimestamp() - $dst;
 
 	$time = new DateTime('now', core_date::get_user_timezone_object());
 	$time = DateTime::createFromFormat('U', $quercusdata->duedate);
@@ -70,10 +66,10 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$dst = dst_offset_on($gradingduedate, $timezone);
 	$formdata->gradingduedate = $time->getTimestamp() - $dst;
 
-	if($quercusdata->grademarkexempt == 'N'){
-		$formdata->grade = get_config('local_quercus_tasks', 'grademarkscale') * -1;
-	}	else {
+	if($quercusdata->grademarkexempt == 'Y'){
 		$formdata->grade = get_config('local_quercus_tasks', 'grademarkexemptscale') * -1;
+	}	else {
+		$formdata->grade = get_config('local_quercus_tasks', 'grademarkscale') * -1;
 	}
 
 	$formdata->timemodified = 0;
@@ -90,6 +86,16 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$formdata->markingallocation = $formdataconfig->markingallocation;
 	$formdata->sendstudentnotifications = $formdataconfig->sendstudentnotifications;
 	$formdata->preventsubmissionnotingroup = $formdataconfig->preventsubmissionnotingroup;
+
+	$formdata->assignfeedback_comments_enabled = $formdataconfig->assignfeedback_comments_enabled;
+	$formdata->assignfeedback_comments_commentinline = $formdataconfig->assignfeedback_comments_commentinline;
+	$formdata->assignfeedback_doublemark_enabled = $formdataconfig->assignfeedback_doublemark_enabled;
+	$formdata->assignfeedback_file_enabled = $formdataconfig->assignfeedback_file_enabled;
+	$formdata->assignfeedback_misconduct_enabled = $formdataconfig->assignfeedback_misconduct_enabled;
+	$formdata->assignfeedback_penalties_enabled = $formdataconfig->assignfeedback_penalties_enabled;
+	$formdata->assignfeedback_sample_enabled = $formdataconfig->assignfeedback_sample_enabled;
+
+	$formdata->coursemodule = '';
 
 	$mod_info = prepare_new_moduleinfo_data($course, 'assign', 1);
 	$newassign = new assign($mod_info, null, $course);
@@ -139,7 +145,13 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	}
 
 	course_add_cm_to_section($course, $newcmid, 1);
-	$newassign->set_context(context_module::instance($newcm->id)); //add context
+	$modcontext = $newassign->set_context(context_module::instance($newcm->id)); //add context
+
+	$eventdata = clone $newcm;
+	$eventdata->modname = $eventdata->modname;
+	$eventdata->id = $eventdata->id;
+	$event = \core\event\course_module_created::create_from_cm($eventdata, $modcontext);
+	$event->trigger();
 
 	// add sitting data
 	$sittingrecord = new stdClass();
@@ -183,6 +195,14 @@ function create_assignments(){
 		$assign_config->markingallocation = get_config('assign', 'markingallocation');
 		$assign_config->sendstudentnotifications = get_config('assign', 'sendstudentnotifications');
 		$assign_config->preventsubmissionnotingroup = get_config('assign', 'preventsubmissionnotingroup');
+
+		$assign_config->assignfeedback_comments_enabled = get_config('assignfeedback_comments', 'default');
+		$assign_config->assignfeedback_comments_commentinline = get_config('assignfeedback_comments', 'inline');
+		$assign_config->assignfeedback_doublemark_enabled = get_config('assignfeedback_doublemark', 'default');
+		$assign_config->assignfeedback_file_enabled = get_config('assignfeedback_file', 'default');
+		$assign_config->assignfeedback_misconduct_enabled = get_config('assignfeedback_misconduct', 'default');
+		$assign_config->assignfeedback_penalties_enabled = get_config('assignfeedback_penalties', 'default');
+		$assign_config->assignfeedback_sample_enabled = get_config('assignfeedback_sample', 'default');
 
 		foreach($array as $arr=>$elem){
 			foreach($elem as $key=>$value){
@@ -228,7 +248,6 @@ function create_assignments(){
 														AND s.sitting = ?', array($course->id, $quercusdata->assignmentidnumber, $quercusdata->sitting));
 
 						if (!$module){
-							//$newcm = insert_assign($course, $assignmentidnumber, $assessmentdescription, $availablefrom, $duedate, $sitting, $sittingdescription, $assign_config);
 							$newcm = insert_assign($course, $quercusdata, $assign_config);
 							if($newcm){
 								mtrace("Created " . $quercusdata->assignmentidnumber . " " . $quercusdata->sittingdescription . " in unit " . $unitinstance);
