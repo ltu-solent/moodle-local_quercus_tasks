@@ -30,12 +30,16 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$formdata->sendnotifications = $formdataconfig->sendnotifications;
 	$formdata->sendlatenotifications = $formdataconfig->sendlatenotifications;
 
-	$time = new DateTime('now', core_date::get_user_timezone_object());
-	$time = DateTime::createFromFormat('U', $quercusdata->availablefrom);
-	$time->setTime(16, 0, 0);
-	$timezone = core_date::get_user_timezone($time);
-	$dst = dst_offset_on($quercusdata->availablefrom, $timezone);
-	$formdata->allowsubmissionsfromdate = $time->getTimestamp() - $dst;
+	if($quercusdata->availablefrom == 0){
+		$formdata->allowsubmissionsfromdate = 0;
+	}else{
+		$time = new DateTime('now', core_date::get_user_timezone_object());
+		$time = DateTime::createFromFormat('U', $quercusdata->availablefrom);
+		$time->setTime(16, 0, 0);
+		$timezone = core_date::get_user_timezone($time);
+		$dst = dst_offset_on($quercusdata->availablefrom, $timezone);
+		$formdata->allowsubmissionsfromdate = $time->getTimestamp() - $dst;
+	}
 
 	$time = new DateTime('now', core_date::get_user_timezone_object());
 	$time = DateTime::createFromFormat('U', $quercusdata->duedate);
