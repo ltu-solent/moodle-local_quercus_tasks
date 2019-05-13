@@ -28,14 +28,13 @@ class export_grades extends \core\task\scheduled_task {
           $data_ready =  json_encode($data_array);
           $response = export_grades($data_ready);
           if($response != null){
-			$update = update_log($response);
-			mtrace('Released grades have been processed');
-		  }else{
-			mtrace('Can\'t connect to Quercus');
-		  }
-          
+            $update = update_log($response);
+            mtrace('Released grades have been processed');
+          }else{
+            mtrace('Can\'t connect to Quercus');
+          }
         }else{
-          mtrace('No grades have been released');
+        mtrace('No grades have been released');
         }
     }
 }

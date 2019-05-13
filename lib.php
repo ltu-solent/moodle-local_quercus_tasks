@@ -397,7 +397,7 @@ function update_log($response){
 								WHERE c.idnumber = ?
 								AND cm.idnumber = ?
 								AND u.id = ?
-								AND s.sittingdescription = ?
+								AND s.sitting_desc = ?
 								LIMIT 1
 							) AS g
 						)";
@@ -416,9 +416,9 @@ function get_retry_list(){
 	$reprocess = $DB->get_records_sql('SELECT
 										qg.id, u.id "moodlestudentid", u.idnumber "studentid", u.firstname "name", u.lastname "surname",
 										SUBSTRING_INDEX(c.shortname,"_",1) modulecode, c.shortname moduleinstanceid, c.fullname moduledescription,
-										qs.sittingdescription assessmentsittingcode, SUBSTRING_INDEX(cm.idnumber,"_",1) academicsession,
+										qs.sitting_desc assessmentsittingcode, SUBSTRING_INDEX(cm.idnumber,"_",1) academicsession,
 										a.name assessmentdescription, SUBSTRING_INDEX(cm.idnumber,"_",-1) assessmentcode,
-										qg.convertedgrade assessmentresult,
+										qg.converted_grade assessmentresult,
 										(SELECT u1.firstname FROM {user} u1 WHERE u1.id = qg.grader) unitleadername,
 										(SELECT u2.lastname FROM {user} u2 WHERE u2.id = qg.grader) unitleadersurname,
 										(SELECT u3.email FROM {user} u3 WHERE u3.id = qg.grader) unitleaderemail
@@ -522,7 +522,7 @@ function get_new_grades($lastruntime){
 			//Get course
 			$course = get_course($cm->course);
 			//Get sittingdescription
-			$sitting = $DB->get_record_sql('SELECT id, sittingdescription FROM {local_quercus_tasks_sittings} WHERE assign = ?', array($v->iteminstance));
+			$sitting = $DB->get_record_sql('SELECT id, sitting_desc FROM {local_quercus_tasks_sittings} WHERE assign = ?', array($v->iteminstance));
 			//Get user that locked the grades and scale id
 			$gradeinfo = $DB->get_record_sql('SELECT u.id, u.firstname, u.lastname, u.email, MAX(h.timemodified), h.scaleid
 																					FROM {grade_items_history} h
@@ -533,7 +533,7 @@ function get_new_grades($lastruntime){
 			$coursemodule["modulecode"] = substr($course->shortname, 0, strpos($course->shortname, "_"));
 			$coursemodule["moduleinstanceid"] =  $course->shortname;
 			$coursemodule["moduledescription"] = $course->fullname;
-			$coursemodule["assessmentsittingcode"] = $sitting->sittingdescription;
+			$coursemodule["assessmentsittingcode"] = $sitting->sitting_desc;
 			$coursemodule["academicsession"] = substr($cm->idnumber, 0, strpos($cm->idnumber, "_"));
 			$coursemodule["assessmentdescription"] = $cm->name;
 			$coursemodule["assessmentcode"] = substr($cm->idnumber, strpos($cm->idnumber, "_") + 1);
