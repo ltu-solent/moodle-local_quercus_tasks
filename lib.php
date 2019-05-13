@@ -159,7 +159,8 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$sittingrecord = new stdClass();
 	$sittingrecord->assign = $newmod;
 	$sittingrecord->sitting = $quercusdata->sitting;
-	$sittingrecord->sittingdescription = $quercusdata->sittingdescription;
+	$sittingrecord->sitting_desc = $quercusdata->sittingdescription;
+	$sittingrecord->externaldate = $quercusdata->externaldate;
 	$sittingid = $DB->insert_record('local_quercus_tasks_sittings', $sittingrecord, false);
 
 	if (!$sittingid) {
@@ -220,6 +221,12 @@ function create_assignments(){
 				$quercusdata->sittingdescription = $value["sittingDescription"];
 				$weighting = (float)$value["weighting"] * 100;
 				$quercusdata->grademarkexempt = $value["gradeMarkExempt"];
+
+				if (isset($value["externalDate"]) && $value["sittingDescription"] != 'FIRST_SITTING') {
+					$quercusdata->externaldate = $value["externalDate"];
+				} else {
+					$quercusdata->externaldate = null;
+				}
 
 				if(isset($value["availableFrom"])){
 					$quercusdata->availablefrom = $value["availableFrom"];
@@ -720,6 +727,19 @@ function update_dates(){
 								$gradingduedate = $time->getTimestamp() - $dst;
 							}
 
+							if (isset($value["externalDate"])){
+								if ($value["externalDate"] != $assign->externaldate){
+									//Update board date
+									$newboard = new stdClass();
+									$newboard->id = $assign->sitting_id;
+									$newboard->externaldate = $value["externalDate"];
+									$update = $DB->update_record('local_quercus_tasks_sittings', $newboard, $bulk=false);
+
+									mtrace('Updated ' . $assign->name . ' in ' . $unitinstance .
+											' - Board: ' . 	date( "d/m/Y h:i", $assign->externaldate) . ' -> ' . date( "d/m/Y h:i", $value["externalDate"]));
+								}
+							}
+
 							if($duedate != $assign->duedate){
 
 								//Update assignment dates
@@ -744,7 +764,7 @@ function update_dates(){
 								$cmobj->modname = 'assign';
 								$refreshevent = course_module_calendar_event_update_process($assignobj, $cmobj);
 								// Output result to cron
-								mtrace('Dates updated for ' . $assign->name . ' in ' . $unitinstance .
+								mtrace('Updated ' . $assign->name . ' in ' . $unitinstance .
 										' - Due: ' . 		date( "d/m/Y h:i", $assign->duedate) . ' -> ' . date( "d/m/Y h:i", $duedate) .
 										' * Cut off: ' . 	date( "d/m/Y h:i", $assign->cutoffdate) . ' -> ' . date( "d/m/Y h:i", $cutoffdate) .
 										' * Grade: ' . 		date( "d/m/Y h:i", $assign->gradingduedate) . ' -> ' . date( "d/m/Y h:i", $gradingduedate) );
