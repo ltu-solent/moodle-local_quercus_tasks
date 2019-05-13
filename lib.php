@@ -90,7 +90,6 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$formdata->markingallocation = $formdataconfig->markingallocation;
 	$formdata->sendstudentnotifications = $formdataconfig->sendstudentnotifications;
 	$formdata->preventsubmissionnotingroup = $formdataconfig->preventsubmissionnotingroup;
-
 	$formdata->assignfeedback_comments_enabled = $formdataconfig->assignfeedback_comments_enabled;
 	$formdata->assignfeedback_comments_commentinline = $formdataconfig->assignfeedback_comments_commentinline;
 	$formdata->assignfeedback_doublemark_enabled = $formdataconfig->assignfeedback_doublemark_enabled;
@@ -98,7 +97,6 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$formdata->assignfeedback_misconduct_enabled = $formdataconfig->assignfeedback_misconduct_enabled;
 	$formdata->assignfeedback_penalties_enabled = $formdataconfig->assignfeedback_penalties_enabled;
 	$formdata->assignfeedback_sample_enabled = $formdataconfig->assignfeedback_sample_enabled;
-
 	$formdata->coursemodule = '';
 
 	$mod_info = prepare_new_moduleinfo_data($course, 'assign', 1);
