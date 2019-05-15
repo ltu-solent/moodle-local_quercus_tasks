@@ -677,20 +677,29 @@ function update_dates(){
 															AND cm.idnumber = ?
 															AND s.sitting = ?', array($course->id, $assignmentidnumber, $sitting));
 
-						if($assign){
-
+						if ($assign) {
 							// Available from date - date range may have been implemented
-							if(isset($value["availableFrom"])){
-								$availablefrom = $value["availableFrom"];
+							if (isset($value["availableFrom"])) {
+									if ($value["availableFrom"] != $assign->allowsubmissionsfromdate) {
 
-								$time = new DateTime('now', core_date::get_user_timezone_object());
-								$time = DateTime::createFromFormat('U', $availablefrom);
-								$time->setTime(16, 0, 0);
-								$timezone = core_date::get_user_timezone($time);
-								$dst = dst_offset_on($availablefrom, $timezone);
-								$availablefrom = $time->getTimestamp() - $dst;
-							}else{
-								$availablefrom = $assign->allowsubmissionsfromdate;
+										$availablefrom = $value["availableFrom"];
+
+										$time = new DateTime('now', core_date::get_user_timezone_object());
+										$time = DateTime::createFromFormat('U', $availablefrom);
+										$time->setTime(16, 0, 0);
+										$timezone = core_date::get_user_timezone($time);
+										$dst = dst_offset_on($availablefrom, $timezone);
+										$availablefrom = $time->getTimestamp() - $dst;
+
+										//Update assignment date
+										$newdates = new stdClass();
+										$newdates->id = $assign->id;
+										$newdates->allowsubmissionsfromdate = $availablefrom;
+										$update = $DB->update_record('assign', $newdates, $bulk=false);
+
+										mtrace('Updated ' . $assign->name . ' in ' . $unitinstance .
+												' - Available from: ' . 	date( "d/m/Y h:i", $assign->allowsubmissionsfromdate) . ' -> ' . date( "d/m/Y h:i", $value["availableFrom"]));										
+								}
 							}
 
 							if(isset($value["dueDate"])){
@@ -741,12 +750,11 @@ function update_dates(){
 							}
 
 							if($duedate != $assign->duedate){
-
 								//Update assignment dates
 								$newdates = new stdClass();
 								$newdates->id = $assign->id;
 								$newdates->duedate = $duedate;
-								$newdates->allowsubmissionsfromdate = $availablefrom;
+								// $newdates->allowsubmissionsfromdate = $availablefrom;
 								$newdates->cutoffdate = $cutoffdate;
 								$newdates->gradingduedate = $gradingduedate;
 								$update = $DB->update_record('assign', $newdates, $bulk=false);
