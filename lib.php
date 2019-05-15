@@ -678,28 +678,28 @@ function update_dates(){
 															AND s.sitting = ?', array($course->id, $assignmentidnumber, $sitting));
 
 						if ($assign) {
-							// Available from date - date range may have been implemented
+							// Available from date
 							if (isset($value["availableFrom"])) {
-									if ($value["availableFrom"] != $assign->allowsubmissionsfromdate) {
+								$availablefrom = $value["availableFrom"];
 
-										$availablefrom = $value["availableFrom"];
+								$time = new DateTime('now', core_date::get_user_timezone_object());
+								$time = DateTime::createFromFormat('U', $availablefrom);
+								$timezone = core_date::get_user_timezone($time);
+								$dst = dst_offset_on($availablefrom, $timezone);
+								$availablefrom = $time->getTimestamp() - $dst;
+							}else{
+								$availablefrom = 0;
+							}
 
-										$time = new DateTime('now', core_date::get_user_timezone_object());
-										$time = DateTime::createFromFormat('U', $availablefrom);
-										$time->setTime(16, 0, 0);
-										$timezone = core_date::get_user_timezone($time);
-										$dst = dst_offset_on($availablefrom, $timezone);
-										$availablefrom = $time->getTimestamp() - $dst;
+							if ($availablefrom != $assign->allowsubmissionsfromdate) {
+									//Update assignment date
+									$newdate = new stdClass();
+									$newdate->id = $assign->id;
+									$newdate->allowsubmissionsfromdate = $availablefrom;
+									$update = $DB->update_record('assign', $newdate, $bulk=false);
 
-										//Update assignment date
-										$newdates = new stdClass();
-										$newdates->id = $assign->id;
-										$newdates->allowsubmissionsfromdate = $availablefrom;
-										$update = $DB->update_record('assign', $newdates, $bulk=false);
-
-										mtrace('Updated ' . $assign->name . ' in ' . $unitinstance .
-												' - Available from: ' . 	date( "d/m/Y h:i", $assign->allowsubmissionsfromdate) . ' -> ' . date( "d/m/Y h:i", $value["availableFrom"]));										
-								}
+									mtrace($assign->name . ' in ' . $unitinstance .
+											' - Available from: ' . 	date( "d/m/Y h:i", $assign->allowsubmissionsfromdate) . ' -> ' . date( "d/m/Y h:i", $availablefrom));
 							}
 
 							if(isset($value["dueDate"])){
@@ -736,19 +736,6 @@ function update_dates(){
 								$gradingduedate = $time->getTimestamp() - $dst;
 							}
 
-							if (isset($value["externalDate"])){
-								if ($value["externalDate"] != $assign->externaldate){
-									//Update board date
-									$newboard = new stdClass();
-									$newboard->id = $assign->sitting_id;
-									$newboard->externaldate = $value["externalDate"];
-									$update = $DB->update_record('local_quercus_tasks_sittings', $newboard, $bulk=false);
-
-									mtrace('Updated ' . $assign->name . ' in ' . $unitinstance .
-											' - Board: ' . 	date( "d/m/Y h:i", $assign->externaldate) . ' -> ' . date( "d/m/Y h:i", $value["externalDate"]));
-								}
-							}
-
 							if($duedate != $assign->duedate){
 								//Update assignment dates
 								$newdates = new stdClass();
@@ -772,11 +759,23 @@ function update_dates(){
 								$cmobj->modname = 'assign';
 								$refreshevent = course_module_calendar_event_update_process($assignobj, $cmobj);
 								// Output result to cron
-								mtrace('Updated ' . $assign->name . ' in ' . $unitinstance .
+								mtrace($assign->name . ' in ' . $unitinstance .
 										' - Due: ' . 		date( "d/m/Y h:i", $assign->duedate) . ' -> ' . date( "d/m/Y h:i", $duedate) .
 										' * Cut off: ' . 	date( "d/m/Y h:i", $assign->cutoffdate) . ' -> ' . date( "d/m/Y h:i", $cutoffdate) .
 										' * Grade: ' . 		date( "d/m/Y h:i", $assign->gradingduedate) . ' -> ' . date( "d/m/Y h:i", $gradingduedate) );
+							}
 
+							if (isset($value["externalDate"])){
+								if ($value["externalDate"] != $assign->externaldate){
+									//Update board date
+									$newboard = new stdClass();
+									$newboard->id = $assign->sitting_id;
+									$newboard->externaldate = $value["externalDate"];
+									$update = $DB->update_record('local_quercus_tasks_sittings', $newboard, $bulk=false);
+
+									mtrace($assign->name . ' in ' . $unitinstance .
+											' - Board: ' . 	date( "d/m/Y h:i", $assign->externaldate) . ' -> ' . date( "d/m/Y h:i", $value["externalDate"]));
+								}
 							}
 						}
 					}
