@@ -32,7 +32,7 @@ function xmldb_local_quercus_tasks_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2019032102) {
+    if ($oldversion < 2019051501) {
 
         if ($dbman->table_exists('local_quercus_tasks_sittings')) {
             // Define field externaldate to be added to local_quercus_tasks_sittings.
@@ -47,7 +47,7 @@ function xmldb_local_quercus_tasks_upgrade($oldversion) {
         }
 
         // Savepoint reached.
-        upgrade_plugin_savepoint(true, 2019032102, 'local', 'quercus_tasks');
+        upgrade_plugin_savepoint(true, 2019051501, 'local', 'quercus_tasks');
     }
 
     return true;

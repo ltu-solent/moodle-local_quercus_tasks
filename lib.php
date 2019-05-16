@@ -365,7 +365,7 @@ function insert_log($cm, $sitting, $course, $gradeinfo, $grade, $student){
 		$record->course_module = $cm->id;
 		$record->grader = $gradeinfo->id;
 		$record->student = $student->id;
-		$record->convertedgrade = $grade;
+		$record->converted_grade = $grade;
 		$record->timecreated = time();
 
 		$lastinsertid = $DB->insert_record('local_quercus_grades', $record, false);
