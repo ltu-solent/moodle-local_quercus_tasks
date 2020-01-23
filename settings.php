@@ -33,6 +33,7 @@ $settings->add(new admin_setting_configtext('local_quercus_tasks/gradingdueinter
 $settings->add(new admin_setting_configtext('local_quercus_tasks/grademarkscale', 'ID of grademark gradescale', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/grademarkexemptscale', 'ID of grademark exempt gradescale', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/boardbuffer', 'Days after resit board that grades can be released', '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/releaseroles', 'Comma separated list of role IDs that can release grades (no spaces)', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/gradinghelpurl', 'Grading help guide URL', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/senderrorto', 'Email to send Turnitin errors to', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/emailfrom', 'Email from address', '', ''));

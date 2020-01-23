@@ -49,15 +49,19 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$formdata->duedate = $time->getTimestamp() - $dst;
 
 	// Cut off date
-	$time = new DateTime('now', core_date::get_user_timezone_object());
-	$time = DateTime::createFromFormat('U', $quercusdata->duedate);
-	$timezone = core_date::get_user_timezone($time);
-	$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
-	$cutoffdate  = 	$time->modify($modifystring);
-	$time->setTime(16, 0, 0);
-	$cutoffdate = $time->getTimestamp();
-	$dst = dst_offset_on($cutoffdate, $timezone);
-	$formdata->cutoffdate = $time->getTimestamp() - $dst;
+	if($quercusdata->sittingdescription == 'FIRST_SITTING'){
+		$time = new DateTime('now', core_date::get_user_timezone_object());
+		$time = DateTime::createFromFormat('U', $quercusdata->duedate);
+		$timezone = core_date::get_user_timezone($time);
+		$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
+		$cutoffdate  = 	$time->modify($modifystring);
+		$time->setTime(16, 0, 0);
+		$cutoffdate = $time->getTimestamp();
+		$dst = dst_offset_on($cutoffdate, $timezone);
+		$formdata->cutoffdate = $time->getTimestamp() - $dst;
+	}else{
+		$formdata->cutoffdate = 0;
+	}
 
 	// Grading due date
 	$time = new DateTime('now', core_date::get_user_timezone_object());
