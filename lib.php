@@ -41,12 +41,12 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 		$formdata->allowsubmissionsfromdate = $time->getTimestamp() - $dst;
 	}
 
-	$time = new DateTime('now', core_date::get_user_timezone_object());
-	$time = DateTime::createFromFormat('U', $quercusdata->duedate);
-	$time->setTime(16, 0, 0);
-	$timezone = core_date::get_user_timezone($time);
+	$duedate = new DateTime('now', core_date::get_user_timezone_object());
+	$duedate = DateTime::createFromFormat('U', $quercusdata->duedate);
+	$duedate->setTime(16, 0, 0);
+	$timezone = core_date::get_user_timezone($duedate);
 	$dst = dst_offset_on($quercusdata->duedate, $timezone);
-	$formdata->duedate = $time->getTimestamp() - $dst;
+	$formdata->duedate = $duedate->getTimestamp() - $dst;
 
 	// Cut off date
 	if($quercusdata->sittingdescription == 'FIRST_SITTING'){
@@ -60,7 +60,7 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 		$dst = dst_offset_on($cutoffdate, $timezone);
 		$formdata->cutoffdate = $time->getTimestamp() - $dst;
 	}else{
-		$formdata->cutoffdate = 0;
+		$formdata->cutoffdate = $duedate->getTimestamp() - $dst;
 	}
 
 	// Grading due date
@@ -726,6 +726,11 @@ function update_dates(){
 								$cutoffdate = $time->getTimestamp();
 								$dst = dst_offset_on($cutoffdate, $timezone);
 								$cutoffdate = $time->getTimestamp() - $dst;
+
+								// Cut off date for second sittings
+								if($value["sittingDescription"] != 'FIRST_SITTING'){
+									$cutoffdate = $duedate;
+								}
 
 								// Grading due date	- Update regardless
 								$time = new DateTime('now', core_date::get_user_timezone_object());
