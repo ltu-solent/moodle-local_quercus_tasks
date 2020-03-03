@@ -793,3 +793,51 @@ function update_dates(){
 		}
 	}
 }
+
+function staff_enrolments(){
+	global $DB;
+	// Connects to the Quercus view
+	$host = get_config('local_quercus_tasks', 'enrolmentconnectionhost');
+	$password = get_config('local_quercus_tasks', 'enrolmentconnectionpassword');
+	$database = get_config('local_quercus_tasks', 'enrolmentconnectiondatabase');
+	$table = get_config('local_quercus_tasks', 'enrolmenttable');
+	$oci = oci_connect($database, $password, $host);
+
+	if ($oci) { //If there's a connection, get the data
+		//Get the data
+		$sql = "select * from (".$table.")";
+		$stid = oci_parse($oci, $sql);
+		$result = oci_execute($stid);
+
+		if($result){
+			//Truncate secondary table
+			$DB->execute('TRUNCATE TABLE {local_quercus_staff_new}');
+			//Prepare data to insert to Moodle table
+			$insertdata = [];
+			while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
+					$insertdata[] = [
+			        'role' => $row['role'],
+			        'useridnumber' => $row['idnumber'],
+			        'courseidnumber' => $row['course'],
+			    ];
+			}
+			//Insert data to secondary table;
+			$inserted = $DB->insert_records('local_quercus_staff_new', $insertdata);
+			if($inserted == NULL){
+				//Rename current table to 'old'
+				$DB->change_database_structure("ALTER TABLE {$DB->get_prefix()}local_quercus_staff RENAME TO {$DB->get_prefix()}local_quercus_staff_old");
+				//Rename new table to current table
+				$DB->change_database_structure("ALTER TABLE {$DB->get_prefix()}local_quercus_staff_new RENAME TO {$DB->get_prefix()}local_quercus_staff");
+				//Rename old table to new table
+				$DB->change_database_structure("ALTER TABLE {$DB->get_prefix()}local_quercus_staff_old RENAME TO {$DB->get_prefix()}local_quercus_staff_new");
+				mtrace('Enrolment data successfully updated');
+			}else{
+				mtrace('Problem inserting records');
+			}
+	 }else {
+	 	mtrace('No result');
+	 }
+ }else {
+ 	mtrace('No connection');
+ }
+}

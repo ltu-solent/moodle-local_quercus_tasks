@@ -9,12 +9,39 @@
           <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="assign"/>
           <FIELD NAME="assign" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" NEXT="sitting" PREVIOUS="id"/>
           <FIELD NAME="sitting" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" NEXT="sitting_desc" PREVIOUS="assign"/>
-          <FIELD NAME="sitting_desc" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" PREVIOUS="assign"/>
+          <FIELD NAME="sitting_desc" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" NEXT="externaldate" PREVIOUS="sitting"/>
+          <FIELD NAME="externaldate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="sitting_desc"/>
     		</FIELDS>
         <KEYS>
           <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
 		  <KEY NAME="assign" TYPE="foreign" FIELDS="assign" REFTABLE="assign" REFFIELDS="id" COMMENT="The assignment instance this sitting relates to." PREVIOUS="primary"/>
         </KEYS>
+      </TABLE>
+      <TABLE NAME="local_quercus_staff" COMMENT="Primary data the external DB enrolment plugin should read from">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="role" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="useridnumber" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="courseidnumber" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="useridnumber" TYPE="foreign" FIELDS="useridnumber" REFTABLE="user" REFFIELDS="idnumber"/>
+        <KEY NAME="courseidnumber" TYPE="foreign" FIELDS="courseidnumber" REFTABLE="course" REFFIELDS="idnumber"/>
+      </KEYS>
+      </TABLE>
+      <TABLE NAME="local_quercus_staff_new" COMMENT="Secondary table for importing data to">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="role" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="useridnumber" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="courseidnumber" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="useridnumber" TYPE="foreign" FIELDS="useridnumber" REFTABLE="user" REFFIELDS="idnumber"/>
+        <KEY NAME="courseidnumber" TYPE="foreign" FIELDS="courseidnumber" REFTABLE="course" REFFIELDS="idnumber"/>
+      </KEYS>
       </TABLE>
     </TABLES>
   </XMLDB>

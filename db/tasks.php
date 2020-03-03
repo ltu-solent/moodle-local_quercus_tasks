@@ -27,5 +27,14 @@ $tasks = array(
         'day' => '*',
         'dayofweek' => '6',
         'month' => '*'
+    ),
+    array(
+        'classname' => 'local_quercus_tasks\task\staff_enrolments',
+        'blocking' => 0,
+        'minute' => '30',
+        'hour' => '23',
+        'day' => '*',
+        'dayofweek' => '6',
+        'month' => '*'
     )
 );

@@ -50,5 +50,36 @@ function xmldb_local_quercus_tasks_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2019051501, 'local', 'quercus_tasks');
     }
 
+    if ($oldversion < 2020020205) {
+
+       // Define table local_quercus_staff to be created.
+       $table = new xmldb_table('local_quercus_staff');
+
+       // Adding fields to table local_quercus_staff.
+       $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+       $table->add_field('role', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+       $table->add_field('useridnumber', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+       $table->add_field('courseidnumber', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+
+       // Adding keys to table local_quercus_staff.
+       $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+       $table->add_key('useridnumber', XMLDB_KEY_FOREIGN, ['useridnumber'], 'user', ['idnumber']);
+       $table->add_key('courseidnumber', XMLDB_KEY_FOREIGN, ['courseidnumber'], 'course', ['idnumber']);
+
+       // Conditionally launch create table for local_quercus_tasks_staff.
+       if (!$dbman->table_exists($table)) {
+          $dbman->create_table($table);
+       }
+
+       //Clone table
+       $table2 = clone($table);
+       $table2->setName('local_quercus_staff_new');
+       if (!$dbman->table_exists($table2)) {
+          $dbman->create_table($table2);
+       }
+       // Quercus_tasks savepoint reached.
+       upgrade_plugin_savepoint(true, 2020020205, 'local', 'quercus_tasks');
+   }
+
     return true;
 }

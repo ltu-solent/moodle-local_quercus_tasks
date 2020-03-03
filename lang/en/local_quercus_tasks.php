@@ -15,6 +15,7 @@ $string['emailsubject'] = 'Invalid marks uploaded to Quercus - {$a->shortname} -
 $string['export_grades'] = 'Export grades';
 $string['pluginname'] = "Quercus Tasks";
 $string['quercustasks:releasegrades'] = 'Release grades to Quercus';
+$string['staff_enrolments'] = 'Staff external database enrolments';
 $string['tablefooter'] = '</table>';
 $string['tableheader'] = '<table border="1"><tr><th>Student ID</th><th>Student name</th><th>True grade</th></tr>';
 $string['update_dates'] = 'Update dates';
