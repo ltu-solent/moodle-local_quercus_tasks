@@ -805,13 +805,12 @@ function staff_enrolments(){
 
 	if ($oci) { //If there's a connection, get the data
 		//Get the data
-		$sql = "select * from (".$table.")";
+		$sql = "select * from (".$table.") where rownum <= 10";
 		$stid = oci_parse($oci, $sql);
 		$result = oci_execute($stid);
 
 		if($result){
-			//Truncate secondary table
-			$DB->execute('TRUNCATE TABLE {local_quercus_staff_new}');
+
 			//Prepare data to insert to Moodle table
 			$insertdata = [];
 			while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
@@ -821,18 +820,37 @@ function staff_enrolments(){
 			        'courseidnumber' => $row['course'],
 			    ];
 			}
-			//Insert data to secondary table;
-			$inserted = $DB->insert_records('local_quercus_staff_new', $insertdata);
-			if($inserted == NULL){
-				//Rename current table to 'old'
-				$DB->change_database_structure("ALTER TABLE {$DB->get_prefix()}local_quercus_staff RENAME TO {$DB->get_prefix()}local_quercus_staff_old");
-				//Rename new table to current table
-				$DB->change_database_structure("ALTER TABLE {$DB->get_prefix()}local_quercus_staff_new RENAME TO {$DB->get_prefix()}local_quercus_staff");
-				//Rename old table to new table
-				$DB->change_database_structure("ALTER TABLE {$DB->get_prefix()}local_quercus_staff_old RENAME TO {$DB->get_prefix()}local_quercus_staff_new");
-				mtrace('Enrolment data successfully updated');
+
+			//Count the rows in each table to work out which one is being used.
+			$table1count = $DB->count_records('local_quercus_staff_1', array());
+			$table2count = $DB->count_records('local_quercus_staff_2', array());
+
+			if($table1count != 0 && $table2count == 0){
+				//Insert data to secondary table;
+				$inserted = $DB->insert_records('local_quercus_staff_2', $insertdata);
+
+				//Create or replace view
+				$DB->execute("CREATE OR REPLACE VIEW {$DB->get_prefix()}quercus_staff AS
+																	SELECT * FROM {$DB->get_prefix()}local_quercus_staff_2");
+
+				//Truncate secondary table do this last
+				$DB->execute("TRUNCATE TABLE {local_quercus_staff_1}");
+
+				mtrace('Table 2 updated, Table 1 truncated');
+			}else if ($table1count == 0 && $table2count != 0){
+				//Insert data to secondary table;
+				$inserted = $DB->insert_records('local_quercus_staff_1', $insertdata);
+
+				//Create or replace view
+				$DB->execute("CREATE OR REPLACE VIEW {$DB->get_prefix()}quercus_staff AS
+																	SELECT * FROM {$DB->get_prefix()}local_quercus_staff_1");
+
+				//Truncate secondary table do this last
+				$DB->execute("TRUNCATE TABLE {local_quercus_staff_2}");
+
+				mtrace('Table 1 updated, Table 2 truncated');
 			}else{
-				mtrace('Problem inserting records');
+	 			mtrace('Error updating data');
 			}
 	 }else {
 	 	mtrace('No result');

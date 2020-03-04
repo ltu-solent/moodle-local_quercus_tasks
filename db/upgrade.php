@@ -50,10 +50,10 @@ function xmldb_local_quercus_tasks_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2019051501, 'local', 'quercus_tasks');
     }
 
-    if ($oldversion < 2020020205) {
+    if ($oldversion < 2020020206) {
 
        // Define table local_quercus_staff to be created.
-       $table = new xmldb_table('local_quercus_staff');
+       $table = new xmldb_table('local_quercus_staff_1');
 
        // Adding fields to table local_quercus_staff.
        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -73,12 +73,26 @@ function xmldb_local_quercus_tasks_upgrade($oldversion) {
 
        //Clone table
        $table2 = clone($table);
-       $table2->setName('local_quercus_staff_new');
+       $table2->setName('local_quercus_staff_2');
        if (!$dbman->table_exists($table2)) {
           $dbman->create_table($table2);
        }
+
+       //Insert dummy record
+       $dataobject[] = [
+           'role' => 'courseleader',
+           'useridnumber' => 000000,
+           'courseidnumber' => 'AAAAAA',
+       ];
+
+        $dataobject = new stdClass();
+        $dataobject->role = 'courseleader';
+        $dataobject->useridnumber = 000000;
+        $dataobject->courseidnumber = 'AAAAAA';
+        $DB->insert_record('local_quercus_staff_1', $dataobject);
+
        // Quercus_tasks savepoint reached.
-       upgrade_plugin_savepoint(true, 2020020205, 'local', 'quercus_tasks');
+       upgrade_plugin_savepoint(true, 2020020206, 'local', 'quercus_tasks');
    }
 
     return true;

@@ -17,7 +17,7 @@
 		  <KEY NAME="assign" TYPE="foreign" FIELDS="assign" REFTABLE="assign" REFFIELDS="id" COMMENT="The assignment instance this sitting relates to." PREVIOUS="primary"/>
         </KEYS>
       </TABLE>
-      <TABLE NAME="local_quercus_staff" COMMENT="Primary data the external DB enrolment plugin should read from">
+      <TABLE NAME="local_quercus_staff_1" COMMENT="First table for importing data to">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="role" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
@@ -30,7 +30,7 @@
         <KEY NAME="courseidnumber" TYPE="foreign" FIELDS="courseidnumber" REFTABLE="course" REFFIELDS="idnumber"/>
       </KEYS>
       </TABLE>
-      <TABLE NAME="local_quercus_staff_new" COMMENT="Secondary table for importing data to">
+      <TABLE NAME="local_quercus_staff_2" COMMENT="Second table for importing data to">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="role" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
