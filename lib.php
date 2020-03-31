@@ -805,7 +805,7 @@ function staff_enrolments(){
 
 	if ($oci) { //If there's a connection, get the data
 		//Get the data
-		$sql = "select * from (".$table.") where rownum <= 10";
+		$sql = "select * from (".$table.")";
 		$stid = oci_parse($oci, $sql);
 		$result = oci_execute($stid);
 
