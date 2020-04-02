@@ -53,7 +53,10 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 		$time = new DateTime('now', core_date::get_user_timezone_object());
 		$time = DateTime::createFromFormat('U', $quercusdata->duedate);
 		$timezone = core_date::get_user_timezone($time);
-		$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
+//Covid-19 extension start
+			//$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
+			$modifystring = calculate_interval($quercusdata->duedate, 'cutoffinterval');
+//Covid-19 extension end
 		$cutoffdate  = 	$time->modify($modifystring);
 		$time->setTime(16, 0, 0);
 		$cutoffdate = $time->getTimestamp();
@@ -720,7 +723,10 @@ function update_dates(){
 								$time = new DateTime('now', core_date::get_user_timezone_object());
 								$time = DateTime::createFromFormat('U', $value["dueDate"]);
 								$timezone = core_date::get_user_timezone($time);
-								$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
+//Covid-19 extension start
+								//$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
+								$modifystring = calculate_interval($value["dueDate"], 'cutoffinterval');
+//Covid-19 extension end
 								$cutoffdate  = 	$time->modify($modifystring);
 								$time->setTime(16, 0, 0);
 								$cutoffdate = $time->getTimestamp();
@@ -745,7 +751,7 @@ function update_dates(){
 								$gradingduedate = $time->getTimestamp() - $dst;
 							}
 
-							if($duedate != $assign->duedate){
+							if($duedate != $assign->duedate){ // Covid - may need to remove this check if all dates need updating.
 								//Update assignment dates
 								$newdates = new stdClass();
 								$newdates->id = $assign->id;
@@ -858,4 +864,22 @@ function staff_enrolments(){
  }else {
  	mtrace('No connection');
  }
+}
+
+function calculate_interval($date){
+		if($date >= 1584057600 && $date <= 1596153600){ // 13/03/2020 - 31/07/2020
+			$modifystring = '+2 week';
+		}else{
+			$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
+		}
+	return $modifystring;
+}
+
+function check_if_exam($assessmentcode){
+	var_dump('x'.$assessmentcode);
+	var_dump(strpos('x'.$assessmentcode, 'EXAM'));
+	if (strpos('x'.$assessmentcode, 'EXAM') !== false) {
+	    return true;
+	}
+	return false;
 }
