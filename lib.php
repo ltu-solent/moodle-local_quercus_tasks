@@ -49,13 +49,14 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$formdata->duedate = $duedate->getTimestamp() - $dst;
 
 	// Cut off date
-	if($quercusdata->sittingdescription == 'FIRST_SITTING'){
+	//if($quercusdata->sittingdescription == 'FIRST_SITTING'){
+	if(($quercusdata->sittingdescription == 'FIRST_SITTING' && $quercusdata) && check_if_exam($quercusdata->assessmentcode) === false){
 		$time = new DateTime('now', core_date::get_user_timezone_object());
 		$time = DateTime::createFromFormat('U', $quercusdata->duedate);
 		$timezone = core_date::get_user_timezone($time);
 //Covid-19 extension start
-			//$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
-			$modifystring = calculate_interval($quercusdata->duedate, 'cutoffinterval');
+		//$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
+		$modifystring = calculate_interval($quercusdata->duedate, 'cutoffinterval');
 //Covid-19 extension end
 		$cutoffdate  = 	$time->modify($modifystring);
 		$time->setTime(16, 0, 0);
@@ -253,7 +254,9 @@ function create_assignments(){
 					$append = ucfirst(strtolower(strtok($quercusdata->sittingdescription, '_')));
 					$quercusdata->assessmentdescription = $value["assessmentDescription"] . ' ('. $weighting . '%) - ' . $append . ' Attempt';
 				}
+				$quercusdata->assessmentcode = $assessmentCode;
 				$quercusdata->assignmentidnumber = $academicYear  . '_' . $assessmentCode;
+
 				if($quercusdata->duedate != 0){
 					if($course){
 						$module = $DB->get_records_sql('SELECT *
@@ -734,7 +737,8 @@ function update_dates(){
 								$cutoffdate = $time->getTimestamp() - $dst;
 
 								// Cut off date for second sittings
-								if($value["sittingDescription"] != 'FIRST_SITTING'){
+								//if($value["sittingDescription"] != 'FIRST_SITTING'){
+								if($value["sittingDescription"] != 'FIRST_SITTING' || check_if_exam($assessmentCode) === true){
 									$cutoffdate = $duedate;
 								}
 
@@ -751,7 +755,7 @@ function update_dates(){
 								$gradingduedate = $time->getTimestamp() - $dst;
 							}
 
-							if($duedate != $assign->duedate){ // Covid - may need to remove this check if all dates need updating.
+							//if($duedate != $assign->duedate){ // Covid - may need to remove this check if all dates need updating.
 								//Update assignment dates
 								$newdates = new stdClass();
 								$newdates->id = $assign->id;
@@ -778,7 +782,7 @@ function update_dates(){
 										' - Due: ' . 		date( "d/m/Y h:i", $assign->duedate) . ' -> ' . date( "d/m/Y h:i", $duedate) .
 										' * Cut off: ' . 	date( "d/m/Y h:i", $assign->cutoffdate) . ' -> ' . date( "d/m/Y h:i", $cutoffdate) .
 										' * Grade: ' . 		date( "d/m/Y h:i", $assign->gradingduedate) . ' -> ' . date( "d/m/Y h:i", $gradingduedate) );
-							}
+						//	}
 
 							if (isset($value["externalDate"])){
 								if ($value["externalDate"] != $assign->externaldate){
@@ -876,9 +880,7 @@ function calculate_interval($date){
 }
 
 function check_if_exam($assessmentcode){
-	var_dump('x'.$assessmentcode);
-	var_dump(strpos('x'.$assessmentcode, 'EXAM'));
-	if (strpos('x'.$assessmentcode, 'EXAM') !== false) {
+	if (strpos('x'.$assessmentcode, 'EXAM') == 1) {
 	    return true;
 	}
 	return false;
