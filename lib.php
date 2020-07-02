@@ -652,6 +652,7 @@ function export_grades($dataready){
 
 		return $response;
 	}else{
+		mtrace($errormsg);
 		return null;
 	}
 }
