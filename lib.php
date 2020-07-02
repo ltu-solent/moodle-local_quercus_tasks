@@ -422,7 +422,8 @@ function update_log($response){
 
 function get_retry_list(){
 	global $DB;
-	//Get grades to be re-processed and add to array
+	// Get assign IDs and process one at a time.
+	// Get grades to be re-processed and add to array
 	$reprocess = $DB->get_records_sql('SELECT
 										qg.id, u.id "moodlestudentid", u.idnumber "studentid", u.firstname "name", u.lastname "surname",
 										SUBSTRING_INDEX(c.shortname,"_",1) modulecode, c.shortname moduleinstanceid, c.fullname moduledescription,
@@ -502,31 +503,8 @@ function get_new_grades($lastruntime){
 	$assignids = $DB->get_records_sql('SELECT iteminstance FROM {grade_items} where itemmodule = ? AND idnumber != ? AND (locked > ? AND locktime = ?)', array('assign', '', $lastruntime, 0)); //change to $time 1517317200
 
 	if(isset($assignids)){
-		// Create JSON array structure
-		$coursemodule =	array(
-										"moodlestudentid"=> "",
-										"studentid"=> "",
-										"name" => "" ,
-										"surname" => "",
-										"modulecode" => "",
-										"moduleinstanceid" => "",
-										"moduledescription" => "",
-										"assessmentsittingcode" => "",
-										"academicsession" => "",
-										"assessmentdescription" => "",
-										"assessmentcode" => "",
-										"assessmentresult" => "",
-										"unitleadername" => "",
-										"unitleadersurname" => "",
-										"unitleaderemail" => ""
-									);
 
 		foreach($assignids as $k=>$v){
-			// Setup email values
-			$message = null;
-			$messageintro = get_string('emailmessageintro', 'local_quercus_tasks', ['gradinghelpurl'=>get_config('local_quercus_tasks', 'gradinghelpurl')]);
-			$tableheader = get_string('tableheader', 'local_quercus_tasks');
-			$tablefooter = get_string('tablefooter', 'local_quercus_tasks');
 			// Get course module
 			$cm = get_coursemodule_from_instance('assign', $v->iteminstance, 0);
 			//Get course
@@ -540,17 +518,6 @@ function get_new_grades($lastruntime){
 																					WHERE (h.itemmodule = ? AND h.iteminstance = ?)
 																					AND locked > ?', array('assign', $cm->instance, $lastruntime));
 
-			$coursemodule["modulecode"] = substr($course->shortname, 0, strpos($course->shortname, "_"));
-			$coursemodule["moduleinstanceid"] =  $course->shortname;
-			$coursemodule["moduledescription"] = $course->fullname;
-			$coursemodule["assessmentsittingcode"] = $sitting->sitting_desc;
-			$coursemodule["academicsession"] = substr($cm->idnumber, 0, strpos($cm->idnumber, "_"));
-			$coursemodule["assessmentdescription"] = $cm->name;
-			$coursemodule["assessmentcode"] = substr($cm->idnumber, strpos($cm->idnumber, "_") + 1);
-			$coursemodule["unitleadername"] = $gradeinfo->firstname;
-			$coursemodule["unitleadersurname"] = $gradeinfo->lastname;
-			$coursemodule["unitleaderemail"] = $gradeinfo->email;
-
 			$users = get_role_users(5, context_course::instance($course->id), false, 'u.id, u.lastname, u.firstname, idnumber', 'idnumber, u.lastname, u.firstname');
 
 			// Get all grades for assignment
@@ -561,71 +528,15 @@ function get_new_grades($lastruntime){
 
 			foreach($users as $key => $student){
 				if(is_numeric($student->idnumber)){
-					$coursemodule["moodlestudentid"] = $student->id; //NEW
-					$coursemodule["studentid"] = $student->idnumber;
-					$coursemodule["name"] = $student->firstname;
-					$coursemodule["surname"] = $student->lastname;
 					$grade = match_grades($allgrades, $student, $gradeinfo);
-					if($grade == -1){
-						$coursemodule["assessmentresult"] = 0;
-					}else{
-						$coursemodule["assessmentresult"] = $grade;
-					}
-					$dataarray[] = $coursemodule;
-
-					if($grade == -1){
-						//Send grade of 0 to Quercus
-						$insertid = insert_log($cm, $sitting, $course, $gradeinfo, 0, $student);
-						//Send email to helpdesk as tutor has added grade to Turnitin
-						$message .= get_string('emailmessagestudent', 'local_quercus_tasks', ['idnumber'=>$student->idnumber, 'firstname'=>$student->firstname ,'lastname'=>$student->lastname]) . "\r\n\n";
-
-					}else{
-						$insertid = insert_log($cm, $sitting, $course, $gradeinfo, $grade, $student);
-
-						if($grade == -1){
-							//send email to helpdesk as tutor has added grade to Turnitin
-							$to      = $USER->email;
-							$subject = get_string('emailsubject', 'local_quercus_tasks', ['shortname'=>$_POST['shortname']]);
-							$message = get_string('emailmessage', 'local_quercus_tasks', ['firstname'=>$student->firstname ,'lastname'=>$student->lastname, 'assign'=>$cm->name]) . "\r\n\n";
-							$headers = "From: " . get_config('local_quercus_tasks', 'emailfrom') . "\r\n";
-							$headers .= "MIME-Version: 1.0\r\n";
-							$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-							mail($to, $subject, $message, $headers);
-						}
-					}
+					$insertid = insert_log($cm, $sitting, $course, $gradeinfo, $grade, $student);
+					return true;
 				}
 			}
-
-			if(isset($message)){
-				$messagebody = $messageintro . "\r\n\n";
-				$messagebody .= $tableheader;
-				$messagebody .= $message;
-				$messagebody .= $tablefooter;
-				// Unit leader email
-				//$to      = $gradeinfo->email;
-				// Support emails
-				// $to      .= ',' . get_config('local_quercus_tasks', 'senderrorto');
-				$to      = get_config('local_quercus_tasks', 'senderrorto');
-
-
-				$subject = get_string('emailsubject', 'local_quercus_tasks', ['shortname'=>$course->shortname, 'assign'=>$cm->idnumber]);
-				$headers = "From: " . get_config('local_quercus_tasks', 'emailfrom') . "\r\n";
-				$headers .= "Reply-To: " . get_config('local_quercus_tasks', 'senderrorto') . "\r\n";
-				$headers .= "MIME-Version: 1.0\r\n";
-				$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-				mail($to, $subject, $messagebody, $headers);
-
-				$message = null;
-			}
 		}
-	}
-
-	if(isset($dataarray)){
-		return $dataarray;
 	}else{
-		return null;
+		return false;
 	}
-
 }
 
 function export_grades($dataready){
