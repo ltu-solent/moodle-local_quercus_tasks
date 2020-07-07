@@ -422,7 +422,6 @@ function update_log($response){
 
 function get_retry_list(){
 	global $DB;
-	// Get assign IDs and process one at a time.
 	// Get grades to be re-processed and add to array
 	$reprocess = $DB->get_records_sql('SELECT
 										qg.id, u.id "moodlestudentid", u.idnumber "studentid", u.firstname "name", u.lastname "surname",
@@ -439,9 +438,34 @@ function get_retry_list(){
 										JOIN {local_quercus_tasks_sittings} qs ON qs.id = qg.sitting
 										JOIN {course_modules} cm ON cm.id = qg.course_module
 										JOIN {assign} a ON a.id = qg.assign
-										WHERE response = ?
-										OR response IS NULL', array(1));
-
+										JOIN (
+											SELECT distinct(c.shortname)
+											FROM {local_quercus_grades} qg
+											JOIN {user} u ON u.id = qg.student
+											JOIN {course} c on c.id = qg.course
+											JOIN {local_quercus_tasks_sittings} qs ON qs.id = qg.sitting
+											JOIN {course_modules} cm ON cm.id = qg.course_module
+											JOIN {assign} a ON a.id = qg.assign
+										  WHERE response IS NULL
+										  LIMIT 2
+										) limitmodule
+										ON c.shortname IN (limitmodule.shortname)
+										WHERE response IS NULL
+										ORDER BY qg.id');
+// ----------------------------------------------------
+// Need to slot this in below somehow.
+	// $assignarray = array();
+	// foreach($reprocess as $key => $value){
+	// 	if($value->moduleinstanceid != $moduleinstanceid){
+	// 		$assignarray[$value->moduleinstanceid] = array();
+	// 	}
+	// 	$moduleinstanceid = $value->moduleinstanceid;
+	// }
+	//
+	// foreach($reprocess as $key => $value){
+	// 		$assignarray[$value->moduleinstanceid][] = $value;
+	// }
+// ----------------------------------------------------
 	$coursemodule =	array(
 									"moodlestudentid"=> "",
 									"studentid"=> "",
@@ -459,6 +483,15 @@ function get_retry_list(){
 									"unitleadersurname" => "",
 									"unitleaderemail" => ""
 								);
+
+	$moduleinstanceid = null;
+	$dataarray = array();
+	foreach($reprocess as $key => $value){
+		if($value->moduleinstanceid != $moduleinstanceid){
+			$dataarray[$value->moduleinstanceid] = array();
+		}
+		$moduleinstanceid = $value->moduleinstanceid;
+	}
 	foreach($reprocess as $k => $v){
 		$coursemodule["moodlestudentid"] = $v->moodlestudentid;
 		$coursemodule["studentid"] = $v->studentid;
@@ -475,7 +508,8 @@ function get_retry_list(){
 		$coursemodule["unitleadername"] = $v->unitleadername;
 		$coursemodule["unitleadersurname"] = $v->unitleadersurname;
 		$coursemodule["unitleaderemail"] = $v->unitleaderemail;
-		$dataarray[] = $coursemodule;
+		//$dataarray[] = $coursemodule;
+		$dataarray[$v->moduleinstanceid][] = $coursemodule;
 	}
 
 	if(isset($dataarray)){
@@ -502,8 +536,7 @@ function get_new_grades($lastruntime){
 	// Get assign ids for new assignments
 	$assignids = $DB->get_records_sql('SELECT iteminstance FROM {grade_items} where itemmodule = ? AND idnumber != ? AND (locked > ? AND locktime = ?)', array('assign', '', $lastruntime, 0)); //change to $time 1517317200
 
-	if(isset($assignids)){
-
+	if(count($assignids) > 0){
 		foreach($assignids as $k=>$v){
 			// Get course module
 			$cm = get_coursemodule_from_instance('assign', $v->iteminstance, 0);
@@ -529,11 +562,14 @@ function get_new_grades($lastruntime){
 			foreach($users as $key => $student){
 				if(is_numeric($student->idnumber)){
 					$grade = match_grades($allgrades, $student, $gradeinfo);
+					if($grade == -1){
+						$grade = 0;
+					}
 					$insertid = insert_log($cm, $sitting, $course, $gradeinfo, $grade, $student);
-					return true;
 				}
 			}
 		}
+		return true;
 	}else{
 		return false;
 	}
@@ -554,6 +590,10 @@ function export_grades($dataready){
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $dataready);
 	curl_setopt($ch,CURLOPT_FAILONERROR,true);
 
+// Do not use on production -----------------------
+	//curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	//curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+// ------------------------------------------------
 	$result = curl_exec($ch);
 	$errormsg = curl_error($ch);
 	$response = json_decode($result, true);

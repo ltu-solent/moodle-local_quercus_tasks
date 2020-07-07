@@ -14,8 +14,9 @@ class get_new_grades extends \core\task\scheduled_task {
         //Get new grades
         $lastruntime = $DB->get_field_sql('SELECT max(timecreated) FROM {local_quercus_grades}');
 
-        $data_array = get_new_grades($lastruntime);
-        if(isset($data_array)){
+        $processed = get_new_grades($lastruntime);
+  
+        if($processed == true){
           mtrace('New grades have been logged');
         }else{
           mtrace('No grades have been released');
