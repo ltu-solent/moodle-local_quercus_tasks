@@ -18,10 +18,10 @@ class export_grades extends \core\task\scheduled_task {
           foreach ($dataarray as $key => $value) {
             $dataready =  json_encode($value);
             $response = export_grades($dataready);
-            var_dump($response);
+
             if($response != null){
-              $update = update_log($response);
-              mtrace('Released grades have been processed');
+              $moduleinstanceid = update_log($response);
+              mtrace('Released grades have been processed for ' . $moduleinstanceid);
             }else{
               mtrace('Can\'t connect to Quercus');
             }

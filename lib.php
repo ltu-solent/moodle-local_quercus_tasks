@@ -390,6 +390,7 @@ function insert_log($cm, $sitting, $course, $gradeinfo, $grade, $student){
 
 function update_log($response){
 	global $DB;
+	$moduleinstanceid = null;
 	foreach($response['Payload'] as $key => $val){
 
 		$sql = "UPDATE mdl_local_quercus_grades
@@ -417,7 +418,10 @@ function update_log($response){
 		$params = array($response['ErrorCode'],  $response['ParentRequestId'], $val['requestid'], $val['processed'] ,$error , time(),
 							$val['moduleinstanceid'], $val['academicsession'] . '_' . $val['assessmentcode'], $val['moodlestudentid'], $val['assessmentsittingcode'] );
 		$recordid = $DB->execute($sql, $params);
+		$moduleinstanceid = $val['moduleinstanceid'];
+
 	}
+	return $moduleinstanceid;
 }
 
 function get_retry_list(){
@@ -452,20 +456,7 @@ function get_retry_list(){
 										ON c.shortname IN (limitmodule.shortname)
 										WHERE response IS NULL
 										ORDER BY qg.id');
-// ----------------------------------------------------
-// Need to slot this in below somehow.
-	// $assignarray = array();
-	// foreach($reprocess as $key => $value){
-	// 	if($value->moduleinstanceid != $moduleinstanceid){
-	// 		$assignarray[$value->moduleinstanceid] = array();
-	// 	}
-	// 	$moduleinstanceid = $value->moduleinstanceid;
-	// }
-	//
-	// foreach($reprocess as $key => $value){
-	// 		$assignarray[$value->moduleinstanceid][] = $value;
-	// }
-// ----------------------------------------------------
+
 	$coursemodule =	array(
 									"moodlestudentid"=> "",
 									"studentid"=> "",
