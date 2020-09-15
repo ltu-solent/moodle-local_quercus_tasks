@@ -768,9 +768,9 @@ function staff_enrolments(){
 			$insertdata = [];
 			while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
 					$insertdata[] = [
-			        'role' => $row['role'],
-			        'useridnumber' => $row['idnumber'],
-			        'courseidnumber' => $row['course'],
+			        'role' => $row['ROLE'],
+			        'useridnumber' => $row['IDNUMBER'],
+			        'courseidnumber' => $row['COURSE'],
 			    ];
 			}
 
