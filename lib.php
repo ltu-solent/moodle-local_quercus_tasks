@@ -748,7 +748,7 @@ function update_dates(){
 }
 
 function staff_enrolments(){
-	global $DB;
+	global $DB, $CFG;
 	// Connects to the Quercus view
 	$host = get_config('local_quercus_tasks', 'enrolmentconnectionhost');
 	$password = get_config('local_quercus_tasks', 'enrolmentconnectionpassword');
@@ -804,6 +804,14 @@ function staff_enrolments(){
 				mtrace('Table 1 updated, Table 2 truncated');
 			}else{
 	 			mtrace('Error updating data');
+				$to      =  "lt.systems@solent.ac.uk";
+				$subject = "Error updating quercus_staff table, email sent to lt.systems@solent.ac.uk";
+				$message = "Either the mdl_local_quercus_staff_1 or mdl_local_quercus_staff_2 table should be populated. \r\n
+							If both are, truncate one of them and run the 'Staff external database enrolments' scheduled task again. \r\n\n";
+				$headers = "From: " . $CFG->noreplyaddress . " \r\n";
+				$headers .= "MIME-Version: 1.0\r\n";
+				$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+				mail($to, $subject, $message, $headers);
 			}
 	 }else {
 	 	mtrace('No result');
