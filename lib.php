@@ -787,9 +787,10 @@ function staff_enrolments(){
 																	SELECT * FROM {$DB->get_prefix()}local_quercus_staff_2");
 
 				//Truncate secondary table do this last
-				$DB->execute("TRUNCATE TABLE {local_quercus_staff_1}");
-
-				mtrace('Table 2 updated, Table 1 truncated');
+				$truncated1 = $DB->execute("TRUNCATE TABLE {local_quercus_staff_1}");
+				$viewcount = $DB->count_records('quercus_staff', array());
+				$mtrace = 'Table 2 updated, Table 1 truncated ('. $truncated1 .') - View rows = ' . $viewcount;
+				
 			}else if ($table1count == 0 && $table2count != 0){
 				//Insert data to secondary table;
 				$inserted = $DB->insert_records('local_quercus_staff_1', $insertdata);
@@ -799,19 +800,53 @@ function staff_enrolments(){
 																	SELECT * FROM {$DB->get_prefix()}local_quercus_staff_1");
 
 				//Truncate secondary table do this last
-				$DB->execute("TRUNCATE TABLE {local_quercus_staff_2}");
+				$truncated2 = $DB->execute("TRUNCATE TABLE {local_quercus_staff_2}");
+				$viewcount = $DB->count_records('quercus_staff', array());
+				$mtrace = 'Table 1 updated, Table 2 truncated ('. $truncated2 .') - View rows = ' . $viewcount;
+				
+			}else if ($table1count != 0 && $table2count != 0){
+				if($table1count > $table2count){
+					//Truncate secondary table
+					$truncated2 = $DB->execute("TRUNCATE TABLE {local_quercus_staff_2}");	
+					//Insert data to secondary table;
+					$inserted = $DB->insert_records('local_quercus_staff_2', $insertdata);
 
-				mtrace('Table 1 updated, Table 2 truncated');
-			}else{
-	 			mtrace('Error updating data');
-				$to      =  "lt.systems@solent.ac.uk";
-				$subject = "Error updating quercus_staff table, email sent to lt.systems@solent.ac.uk";
-				$message = "Either the mdl_local_quercus_staff_1 or mdl_local_quercus_staff_2 table should be populated. \r\n
-							If both are, truncate one of them and run the 'Staff external database enrolments' scheduled task again. \r\n\n";
-				$headers = "From: " . $CFG->noreplyaddress . " \r\n";
-				$headers .= "MIME-Version: 1.0\r\n";
-				$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-				mail($to, $subject, $message, $headers);
+					//Create or replace view
+					$DB->execute("CREATE OR REPLACE VIEW {$DB->get_prefix()}quercus_staff AS
+																		SELECT * FROM {$DB->get_prefix()}local_quercus_staff_2");
+																		
+					//Truncate secondary table
+					$truncated1 = $DB->execute("TRUNCATE TABLE {local_quercus_staff_1}");
+					$viewcount = $DB->count_records('quercus_staff', array());
+					$mtrace = 'Table 2 updated and truncated ('.$truncated2.'), Table 1 truncated ('. $truncated1 .') - View rows = ' . $viewcount;
+					
+				}else if($table1count < $table2count || $table1count == $table2count){
+					//Truncate secondary table
+					$truncated1 = $DB->execute("TRUNCATE TABLE {local_quercus_staff_1}");	
+					//Insert data to secondary table;
+					$inserted = $DB->insert_records('local_quercus_staff_1', $insertdata);
+
+					//Create or replace view
+					$DB->execute("CREATE OR REPLACE VIEW {$DB->get_prefix()}quercus_staff AS
+																		SELECT * FROM {$DB->get_prefix()}local_quercus_staff_1");
+																		
+					//Truncate secondary table
+					$truncated2 = $DB->execute("TRUNCATE TABLE {local_quercus_staff_2}");
+					$viewcount = $DB->count_records('quercus_staff', array());
+					$mtrace = 'Table 1 updated and truncated ('.$truncated1.'), Table 2 truncated ('. $truncated2 .') - View rows = ' . $viewcount;
+				}	
+
+				$to      =  get_config('local_quercus_tasks', 'emaillt');				
+				$subject = "Error updating quercus staff enrolments";
+				$message = $mtrace . " \r\n\n";
+				email_error($to, $subject, $message);	
+			}
+			mtrace($mtrace);
+			if($viewcount == 0){
+				$to      =  get_config('local_quercus_tasks', 'emaillt');				
+				$subject = "Zero view count in quercus staff enrolments";
+				$message = $mtrace . " \r\n\n";
+				email_error($to, $subject, $message);
 			}
 	 }else {
 	 	mtrace('No result');
@@ -819,6 +854,51 @@ function staff_enrolments(){
  }else {
  	mtrace('No connection');
  }
+}
+
+function get_new_modules(){	
+	global $DB, $CFG;
+	// Connects to the Quercus view
+	$host = get_config('local_quercus_tasks', 'enrolmentconnectionhost');
+	$password = get_config('local_quercus_tasks', 'enrolmentconnectionpassword');
+	$database = get_config('local_quercus_tasks', 'enrolmentconnectiondatabase');
+	$table = get_config('local_quercus_tasks', 'modulesview');
+	$oci = oci_connect($database, $password, $host);
+
+	if ($oci) { //If there's a connection, get the data
+		//Get the data
+		$sql = "select * from (".$table.")";
+		$stid = oci_parse($oci, $sql);
+		$result = oci_execute($stid);
+
+		if($result){
+			//Prepare data to insert to Moodle table
+			$insertdata = [];
+			while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
+					$insertdata[] = [
+			        'acadyear' => $row['ACADEMIC_SESSION'],
+			        'fullname' => $row['FULLNAME'],
+			        'shortname' => $row['SHORTNAME'],
+			        'summary' => $row['SUMMARY'],
+			        'category_path' => $row['CATEGORY_PATH'],
+			        'idnumber' => $row['IDNUMBER'],
+			        'startdate' => $row['STARTDATE'],
+			        'enddate' => $row['ENDDATE'],
+			    ];
+			}
+			
+			$DB->execute("TRUNCATE TABLE {local_quercus_modules}");
+			$inserted = $DB->insert_records('local_quercus_modules', $insertdata);
+			mtrace('Modules refreshed');
+		}
+	}else{	
+		$to      =  get_config('local_quercus_tasks', 'emaillt');	
+		$subject = "Error updating local_quercus_modules table, email sent to " . get_config('local_quercus_tasks', 'emaillt');
+		$message = "Either the mdl_local_quercus_staff_1 or mdl_local_quercus_staff_2 table should be populated. \r\n
+					If both are, truncate one of them and run the 'Staff external database enrolments' scheduled task again. \r\n\n";
+		email_error($to, $subject, $message);
+		mtrace('Error updating data');
+	}		
 }
 
 function calculate_interval($date){
@@ -835,4 +915,12 @@ function check_if_exam($assessmentcode){
 	    return true;
 	}
 	return false;
+}
+
+function email_error($to, $subject, $message){	
+	global $CFG;									
+	$headers = "From: " . $CFG->noreplyaddress . " \r\n";
+	$headers .= "MIME-Version: 1.0\r\n";
+	$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+	mail($to, $subject, $message, $headers);
 }

@@ -37,10 +37,12 @@ $settings->add(new admin_setting_configtext('local_quercus_tasks/releaseroles', 
 $settings->add(new admin_setting_configtext('local_quercus_tasks/gradinghelpurl', 'Grading help guide URL', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/senderrorto', 'Email to send Turnitin errors to', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/emailfrom', 'Email from address', '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/emaillt', 'LT email address', '', ''));
 
 $settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmentconnectionhost', 'Enrolment connection host', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmentconnectionpassword', 'Enrolment connection password', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmentconnectiondatabase', 'Enrolment connection database', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmenttable', 'Enrolment table name', '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmenttable', 'Enrolment view name', '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/modulesview', 'Modules view name', '', ''));
 
 $ADMIN->add('localplugins', $settings);

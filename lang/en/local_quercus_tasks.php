@@ -10,6 +10,7 @@ $string['emailmessageintro'] = '<p>Marks of -1 have been sent to Quercus and are
 $string['emailmessagestudent'] = '<tr><td>{$a->idnumber}</td><td>{$a->firstname} {$a->lastname}</td><td>  </td></tr>';
 $string['emailsubject'] = 'Invalid marks uploaded to Quercus - {$a->shortname} - {$a->assign}';
 $string['getnewgrades'] = 'Get new grades';
+$string['getnewmodules'] = 'Get new modules';
 $string['pluginname'] = "Quercus Tasks";
 $string['quercustasks:releasegrades'] = 'Release grades to Quercus';
 $string['staff_enrolments'] = 'Staff external database enrolments';
