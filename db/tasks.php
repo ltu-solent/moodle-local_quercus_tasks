@@ -20,6 +20,15 @@ $tasks = array(
         'month' => '*'
     ),
 	array(
+        'classname' => 'local_quercus_tasks\task\get_new_courses',
+        'blocking' => 0,
+        'minute' => '30',
+        'hour' => '23',
+        'day' => '*',
+        'dayofweek' => '6',
+        'month' => '*'
+    ), 	
+	array(
         'classname' => 'local_quercus_tasks\task\get_new_modules',
         'blocking' => 0,
         'minute' => '30',

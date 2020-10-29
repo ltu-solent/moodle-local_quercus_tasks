@@ -894,8 +894,53 @@ function get_new_modules(){
 	}else{	
 		$to      =  get_config('local_quercus_tasks', 'emaillt');	
 		$subject = "Error updating local_quercus_modules table, email sent to " . get_config('local_quercus_tasks', 'emaillt');
-		$message = "Either the mdl_local_quercus_staff_1 or mdl_local_quercus_staff_2 table should be populated. \r\n
-					If both are, truncate one of them and run the 'Staff external database enrolments' scheduled task again. \r\n\n";
+		$message = "Error updating local_quercus_modules.. \r\n\n";
+		email_error($to, $subject, $message);
+		mtrace('Error updating data');
+	}		
+}
+
+function get_new_courses(){	
+	global $DB, $CFG;
+	// Connects to the Quercus view
+	$host = get_config('local_quercus_tasks', 'enrolmentconnectionhost');
+	$password = get_config('local_quercus_tasks', 'enrolmentconnectionpassword');
+	$database = get_config('local_quercus_tasks', 'enrolmentconnectiondatabase');
+	$table = get_config('local_quercus_tasks', 'coursesview');
+	$oci = oci_connect($database, $password, $host);
+
+	if ($oci) { //If there's a connection, get the data
+		//Get the data
+		$sql = "select * from (".$table.")";
+		$stid = oci_parse($oci, $sql);
+		$result = oci_execute($stid);
+
+		if($result){
+			//Prepare data to insert to Moodle table
+			$insertdata = [];
+			while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
+				if($row['SHORTNAME'] != NULL){
+					$insertdata[] = [
+			        'acadyear' => $row['ACADEMIC_YEAR'],
+			        'fullname' => $row['FULLNAME'],
+			        'shortname' => $row['SHORTNAME'],
+			        'summary' => '',
+			        'category_path' => $row['CATEGORY_PATH'],
+			        'idnumber' => $row['IDNUMBER'],
+			        'startdate' => $row['STARTDATE'],
+			        'enddate' => $row['ENDDATE'],
+					];
+				}
+			}
+			
+			$DB->execute("TRUNCATE TABLE {local_quercus_courses}");
+			$inserted = $DB->insert_records('local_quercus_courses', $insertdata);
+			mtrace('Courses refreshed');
+		}
+	}else{	
+		$to      =  get_config('local_quercus_tasks', 'emaillt');	
+		$subject = "Error updating local_quercus_courses table, email sent to " . get_config('local_quercus_tasks', 'emaillt');
+		$message = "Error updating local_quercus_courses. \r\n\n";
 		email_error($to, $subject, $message);
 		mtrace('Error updating data');
 	}		

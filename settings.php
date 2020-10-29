@@ -44,5 +44,6 @@ $settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmentconnec
 $settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmentconnectiondatabase', 'Enrolment connection database', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmenttable', 'Enrolment view name', '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/modulesview', 'Modules view name', '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/coursesview', 'Courses view name', '', ''));
 
 $ADMIN->add('localplugins', $settings);
