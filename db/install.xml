@@ -47,7 +47,7 @@
 	  <TABLE NAME="local_quercus_modules" COMMENT="Modules table for importing data to">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="acadyear" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="acadyear" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="fullname" TYPE="char" LENGTH="254" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="shortname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
 		<FIELD NAME="summary" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
@@ -65,7 +65,7 @@
 	  <TABLE NAME="local_quercus_courses" COMMENT="Courses table for importing data to">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="acadyear" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="acadyear" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="fullname" TYPE="char" LENGTH="254" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="shortname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
 		<FIELD NAME="summary" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
