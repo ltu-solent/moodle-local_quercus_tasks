@@ -37,6 +37,15 @@ $tasks = array(
         'dayofweek' => '6',
         'month' => '*'
     ),    
+	array(
+        'classname' => 'local_quercus_tasks\task\create_new_modules',
+        'blocking' => 0,
+        'minute' => '30',
+        'hour' => '23',
+        'day' => '*',
+        'dayofweek' => '6',
+        'month' => '*'
+    ),    
     array(
         'classname' => 'local_quercus_tasks\task\get_new_grades',
         'blocking' => 0,

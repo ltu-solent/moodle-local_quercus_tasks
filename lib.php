@@ -1,5 +1,7 @@
 <?php
+require_once(dirname(__FILE__).'/../../admin/tool/uploadcourse/classes/helper.php');
 require_once(dirname(__FILE__).'/../../config.php');
+require_once(dirname(__FILE__).'/../../course/externallib.php');
 require_once(dirname(__FILE__).'/../../course/modlib.php');
 require_once(dirname(__FILE__).'/../../lib/gradelib.php');
 require_once(dirname(__FILE__).'/../../mod/assign/externallib.php');
@@ -898,6 +900,69 @@ function get_new_modules(){
 		email_error($to, $subject, $message);
 		mtrace('Error updating data');
 	}		
+}
+
+function create_new_modules(){
+	global $DB;	
+	
+	$acadyear = get_config('local_quercus_tasks', 'acadyear');
+	$modulelimit = get_config('local_quercus_tasks', 'modulelimit');
+	$newmodules = $DB->get_records_sql("SELECT fullname, shortname, summary, category_path, idnumber, startdate, enddate 
+										FROM mdl_local_quercus_modules
+										WHERE idnumber NOT IN ( SELECT idnumber FROM mdl_course)
+										AND acadyear = ?", array($acadyear), 0 , $modulelimit);
+
+									
+	if(count($newmodules) > 0){
+										
+		$helper = new tool_uploadcourse_helper();
+		foreach($newmodules as $k=>$v){
+			
+			$category = explode( ' / ', $v->category_path);
+			$category = $helper->resolve_category_by_path($category);
+
+			if($category != false){
+				// Build a course.
+				$course = new stdClass();
+				$course->fullname = $v->fullname;
+				$course->shortname = $v->shortname;
+				$course->summary = $v->summary;
+				$course->category = $category;
+				$course->idnumber = $v->idnumber;
+				$course->startdate = strtotime($v->startdate);
+				$course->enddate = strtotime($v->enddate);
+
+				// Defaults
+				$course->visible = get_config('moodlecourse', 'visible');	
+				$course->format = get_config('moodlecourse', 'format');	
+				$course->numsections = get_config('moodlecourse', 'numsections');	
+				$course->lang = get_config('moodlecourse', 'lang');	
+				$course->newsitems = get_config('moodlecourse', 'newsitems');	
+				$course->showgrades = get_config('moodlecourse', 'showgrades');	
+				$course->showreports = get_config('moodlecourse', 'showreports');	
+				$course->maxbytes = get_config('moodlecourse', 'maxbytes');	
+				$course->groupmode = get_config('moodlecourse', 'groupmode');	
+				$course->groupmodeforce = get_config('moodlecourse', 'groupmodeforce');	
+				$course->enablecompletion = get_config('moodlecourse', 'enablecompletion');	
+			   
+				$course = create_course($course);
+
+				// Import from template module
+				$courseexternal = new core_course_external();
+				$courseexternal->import_course(get_config('local_quercus_tasks', 'moduletemplate'), $course->id, 1);
+
+				if($course->id > 1 ){
+					mtrace($course->shortname . ' created.');
+				}else{
+					mtrace(get_string('notcreatederror', 'local_quercus_tasks', ['type'=>'module']) . $v->shortname);
+				}
+			}else{
+				mtrace(get_string('nopatherror', 'local_quercus_tasks') . $v->category_path);
+			}
+		}
+	}else{
+		mtrace(get_string('nomodules', 'local_quercus_tasks'));
+	}
 }
 
 function get_new_courses(){	
