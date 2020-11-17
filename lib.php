@@ -750,10 +750,10 @@ function update_dates(){
 function staff_enrolments(){
 	global $DB, $CFG;
 	// Connects to the Quercus view
-	$host = get_config('local_quercus_tasks', 'enrolmentconnectionhost');
-	$password = get_config('local_quercus_tasks', 'enrolmentconnectionpassword');
-	$database = get_config('local_quercus_tasks', 'enrolmentconnectiondatabase');
-	$table = get_config('local_quercus_tasks', 'enrolmenttable');
+	$host = get_config('local_quercus_tasks', 'connectionhost');
+	$password = get_config('local_quercus_tasks', 'connectionpassword');
+	$database = get_config('local_quercus_tasks', 'connectiondatabase');
+	$table = get_config('local_quercus_tasks', 'enrolmentview');
 	$oci = oci_connect($database, $password, $host);
 
 	if ($oci) { //If there's a connection, get the data
@@ -859,9 +859,9 @@ function staff_enrolments(){
 function get_new_modules(){	
 	global $DB, $CFG;
 	// Connects to the Quercus view
-	$host = get_config('local_quercus_tasks', 'enrolmentconnectionhost');
-	$password = get_config('local_quercus_tasks', 'enrolmentconnectionpassword');
-	$database = get_config('local_quercus_tasks', 'enrolmentconnectiondatabase');
+	$host = get_config('local_quercus_tasks', 'connectionhost');
+	$password = get_config('local_quercus_tasks', 'connectionpassword');
+	$database = get_config('local_quercus_tasks', 'connectiondatabase');
 	$table = get_config('local_quercus_tasks', 'modulesview');
 	$oci = oci_connect($database, $password, $host);
 
@@ -903,9 +903,9 @@ function get_new_modules(){
 function get_new_courses(){	
 	global $DB, $CFG;
 	// Connects to the Quercus view
-	$host = get_config('local_quercus_tasks', 'enrolmentconnectionhost');
-	$password = get_config('local_quercus_tasks', 'enrolmentconnectionpassword');
-	$database = get_config('local_quercus_tasks', 'enrolmentconnectiondatabase');
+	$host = get_config('local_quercus_tasks', 'connectionhost');
+	$password = get_config('local_quercus_tasks', 'connectionpassword');
+	$database = get_config('local_quercus_tasks', 'connectiondatabase');
 	$table = get_config('local_quercus_tasks', 'coursesview');
 	$oci = oci_connect($database, $password, $host);
 

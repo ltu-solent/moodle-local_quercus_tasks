@@ -26,24 +26,35 @@ defined('MOODLE_INTERNAL') || die;
 
 $settings = new admin_settingpage('local_quercus_tasks', new lang_string('pluginname', 'local_quercus_tasks'));
 
-$settings->add(new admin_setting_configtext('local_quercus_tasks/datafile', 'Data file path', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/srsgws', 'SRS-GWS URL', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/cutoffinterval', 'Cut off date interval in weeks', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/gradingdueinterval', 'Grading due date interval in weeks', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/grademarkscale', 'ID of grademark gradescale', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/grademarkexemptscale', 'ID of grademark exempt gradescale', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/boardbuffer', 'Days after resit board that grades can be released', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/releaseroles', 'Comma separated list of role IDs that can release grades (no spaces)', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/gradinghelpurl', 'Grading help guide URL', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/senderrorto', 'Email to send Turnitin errors to', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/emailfrom', 'Email from address', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/emaillt', 'LT email address', '', ''));
+$settings->add(new admin_setting_heading('exportsettings', get_string('exportsettings', 'local_quercus_tasks'), ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/srsgws', get_string('srsgws', 'local_quercus_tasks'), '', ''));
 
-$settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmentconnectionhost', 'Enrolment connection host', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmentconnectionpassword', 'Enrolment connection password', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmentconnectiondatabase', 'Enrolment connection database', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmenttable', 'Enrolment view name', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/modulesview', 'Modules view name', '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/coursesview', 'Courses view name', '', ''));
+$settings->add(new admin_setting_heading('assignmentsettings', get_string('assignmentsettings', 'local_quercus_tasks'), ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/cutoffinterval', get_string('cutoffinterval', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/gradingdueinterval', get_string('gradingdueinterval', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/grademarkscale', get_string('grademarkscale', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/grademarkexemptscale', get_string('grademarkexemptscale', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/boardbuffer', get_string('boardbuffer', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/releaseroles', get_string('releaseroles', 'local_quercus_tasks'), '', ''));
+
+$settings->add(new admin_setting_heading('supportsettings', get_string('supportsettings', 'local_quercus_tasks'), ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/gradinghelpurl', get_string('gradinghelpurl', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/emaillt', get_string('emaillt', 'local_quercus_tasks'), '', ''));
+
+$settings->add(new admin_setting_heading('connectionsettings', get_string('connectionsettings', 'local_quercus_tasks'), ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/datafile', get_string('datafile', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/connectionhost', get_string('connectionhost', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/connectionpassword', get_string('connectionpassword', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/connectiondatabase', get_string('connectiondatabase', 'local_quercus_tasks'), '', ''));
+
+$settings->add(new admin_setting_heading('dataviews', get_string('dataviews', 'local_quercus_tasks'), ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/enrolmentview', get_string('enrolmentview', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/modulesview', get_string('modulesview', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/coursesview', get_string('coursesview', 'local_quercus_tasks'), '', ''));
+
+$settings->add(new admin_setting_heading('createmodulessettings', get_string('createmodulessettings', 'local_quercus_tasks'), ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/acadyear', get_string('acadyear', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/moduletemplate', get_string('moduletemplate', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/modulelimit', get_string('modulelimit', 'local_quercus_tasks'), '', ''));
 
 $ADMIN->add('localplugins', $settings);

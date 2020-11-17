@@ -5,7 +5,7 @@ namespace local_quercus_tasks\task;
 class staff_enrolments extends \core\task\scheduled_task {
     public function get_name() {
         // Shown in admin screens
-        return get_string('staff_enrolments', 'local_quercus_tasks');
+        return get_string('staffenrolments', 'local_quercus_tasks');
     }
 
     public function execute() {

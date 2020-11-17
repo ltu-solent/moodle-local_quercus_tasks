@@ -5,7 +5,7 @@ namespace local_quercus_tasks\task;
 class export_grades extends \core\task\scheduled_task {
     public function get_name() {
         // Shown in admin screens
-        return get_string('export_grades', 'local_quercus_tasks');
+        return get_string('exportgrades', 'local_quercus_tasks');
     }
 
     public function execute() {

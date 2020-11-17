@@ -5,7 +5,7 @@ namespace local_quercus_tasks\task;
 class add_new_assignments extends \core\task\scheduled_task {
     public function get_name() {
         // Shown in admin screens
-        return get_string('add_new_assign', 'local_quercus_tasks');
+        return get_string('addnewassign', 'local_quercus_tasks');
     }
 
     public function execute() {

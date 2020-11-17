@@ -5,7 +5,7 @@ namespace local_quercus_tasks\task;
 class update_dates extends \core\task\scheduled_task {
     public function get_name() {
         // Shown in admin screens
-        return get_string('update_dates', 'local_quercus_tasks');
+        return get_string('updatedates', 'local_quercus_tasks');
     }
 
     public function execute() {
