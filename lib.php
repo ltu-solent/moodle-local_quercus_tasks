@@ -700,7 +700,7 @@ function update_dates(){
 								$gradingduedate = $time->getTimestamp() - $dst;
 							}
 
-							//if($duedate != $assign->duedate){ // Covid - may need to remove this check if all dates need updating.
+							if($duedate != $assign->duedate){ // Covid - may need to remove this check if all dates need updating.
 								//Update assignment dates
 								$newdates = new stdClass();
 								$newdates->id = $assign->id;
@@ -727,7 +727,7 @@ function update_dates(){
 										' - Due: ' . 		date( "d/m/Y h:i", $assign->duedate) . ' -> ' . date( "d/m/Y h:i", $duedate) .
 										' * Cut off: ' . 	date( "d/m/Y h:i", $assign->cutoffdate) . ' -> ' . date( "d/m/Y h:i", $cutoffdate) .
 										' * Grade: ' . 		date( "d/m/Y h:i", $assign->gradingduedate) . ' -> ' . date( "d/m/Y h:i", $gradingduedate) );
-						//	}
+							}
 
 							if (isset($value["externalDate"])){
 								if ($value["externalDate"] != $assign->externaldate){
