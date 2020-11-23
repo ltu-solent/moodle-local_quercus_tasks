@@ -965,6 +965,37 @@ function create_new_modules(){
 	}
 }
 
+function update_modules(){
+	global $DB;	
+	
+	$updatemodules = $DB->get_records_sql("SELECT c.id, c.shortname, 
+										from_unixtime(c.startdate,'%d-%m-%Y') startdate, 
+										from_unixtime(c.enddate,'%d-%m-%Y') enddate, 
+										unix_timestamp(STR_TO_DATE(m.startdate,'%d-%m-%Y')) newstartdate, 
+										unix_timestamp(STR_TO_DATE(m.enddate,'%d-%m-%Y')) newenddate,
+										m.summary newsummary
+										FROM {local_quercus_modules} m
+										JOIN {course} c ON c.shortname = m.shortname
+										WHERE unix_timestamp(STR_TO_DATE(m.startdate,'%d-%m-%Y')) != c.startdate
+										OR  unix_timestamp(STR_TO_DATE(m.enddate,'%d-%m-%Y')) != c.enddate");
+
+	if(count($updatemodules) > 0){
+		foreach($updatemodules as $k=>$v){
+			$newdates = new stdClass();
+			$newdates->id = $v->id;
+			$newdates->startdate = $v->newstartdate;
+			$newdates->enddate = $v->newenddate;
+			$newdates->summary = $v->newsummary;
+			$update = $DB->update_record('course', $newdates, $bulk=false);	
+			
+			mtrace($v->shortname . ' - Start date: ' . 	$v->startdate . ' -> ' . date( "d/m/Y", $v->newstartdate) .
+			' End date: ' . 	$v->enddate . ' -> ' . date( "d/m/Y", $v->newenddate));
+		}	
+	}else{
+		mtrace('No dates need updating.');
+	}
+}
+
 function get_new_courses(){	
 	global $DB, $CFG;
 	// Connects to the Quercus view

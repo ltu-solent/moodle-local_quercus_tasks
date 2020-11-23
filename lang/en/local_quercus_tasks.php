@@ -36,4 +36,5 @@ $string['releaseroles'] = 'Comma separated list of role IDs that can release gra
 $string['srsgws'] = 'SRS-GWS URL';
 $string['staffenrolments'] = 'Staff external database enrolments';
 $string['supportsettings'] = 'Support settings';
-$string['updatedates'] = 'Update dates';
+$string['updatedates'] = 'Update assignment dates';
+$string['updatemodules'] = 'Update module dates';
