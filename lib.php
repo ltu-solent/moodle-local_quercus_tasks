@@ -4,6 +4,7 @@ require_once(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/../../course/externallib.php');
 require_once(dirname(__FILE__).'/../../course/modlib.php');
 require_once(dirname(__FILE__).'/../../lib/gradelib.php');
+require_once(dirname(__FILE__).'/../../lib/moodlelib.php');
 require_once(dirname(__FILE__).'/../../mod/assign/externallib.php');
 require_once(dirname(__FILE__).'/../../mod/assign/lib.php');
 require_once(dirname(__FILE__).'/../../mod/assign/locallib.php');
@@ -911,7 +912,6 @@ function create_new_modules(){
 										FROM mdl_local_quercus_modules
 										WHERE idnumber NOT IN ( SELECT idnumber FROM mdl_course)
 										AND acadyear = ?", array($acadyear), 0 , $modulelimit);
-
 									
 	if(count($newmodules) > 0){
 										
@@ -1040,6 +1040,49 @@ function get_new_courses(){
 		email_error($to, $subject, $message);
 		mtrace('Error updating data');
 	}		
+}
+
+function delete_courses(){
+	global $DB;
+	
+	$courselimit = get_config('local_quercus_tasks', 'courselimit');										
+	$categories = get_config('local_quercus_tasks', 'deletecategories');	
+	$categories = explode(',', $categories);
+	$inparams = array();
+	
+	list($inorequalsql, $inparams) = $DB->get_in_or_equal($categories, SQL_PARAMS_NAMED, '', true);
+							
+	$sql = "SELECT * 
+			FROM {course}
+			WHERE category {$inorequalsql}
+			AND category != 0";
+									
+	$deletecourses = $DB->get_records_sql($sql, $inparams, 0, $courselimit);
+
+	if(count($deletecourses) > 0){	
+		// Disable category recycle bin
+		$categorybinenable = get_config('tool_recyclebin', 'categorybinenable');
+		if($categorybinenable == 1){
+			set_config('categorybinenable', 0, 'tool_recyclebin');
+		}
+		core_php_time_limit::raise();
+		// Delete courses
+		foreach($deletecourses as $k=>$v){
+			$deleted = delete_course($v->id, true);
+			if($deleted == 1){
+				mtrace(get_string('deleted', 'local_quercus_tasks', ['shortname'=>$v->shortname, 'fullname'=>$v->fullname]));
+			}else{
+				mtrace(get_string('errordeleting', 'local_quercus_tasks',['shortname'=>$v->shortname, 'fullname'=>$v->fullname]));
+			}
+		}
+		fix_course_sortorder();
+		// Enable category recycle bin
+		if($categorybinenable == 1){
+			set_config('categorybinenable', 1, 'tool_recyclebin');
+		}
+	}else{
+		mtrace(get_string('nodelete', 'local_quercus_tasks'));
+	}
 }
 
 function calculate_interval($date){

@@ -57,4 +57,8 @@ $settings->add(new admin_setting_configtext('local_quercus_tasks/acadyear', get_
 $settings->add(new admin_setting_configtext('local_quercus_tasks/moduletemplate', get_string('moduletemplate', 'local_quercus_tasks'), '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/modulelimit', get_string('modulelimit', 'local_quercus_tasks'), '', ''));
 
+$settings->add(new admin_setting_heading('deletecoursessettings', get_string('deletecourses', 'local_quercus_tasks'), ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/courselimit', get_string('courselimit', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/deletecategories', get_string('deletecategories', 'local_quercus_tasks'), '', ''));
+
 $ADMIN->add('localplugins', $settings);
