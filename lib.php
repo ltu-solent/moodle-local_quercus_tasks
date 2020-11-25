@@ -739,7 +739,7 @@ function update_dates(){
 									$update = $DB->update_record('local_quercus_tasks_sittings', $newboard, $bulk=false);
 
 									mtrace($assign->name . ' in ' . $unitinstance .
-											' - Board: ' . 	date( "d/m/Y h:i", $assign->externaldate) . ' -> ' . date( "d/m/Y h:i", $value["externalDate"]));
+											' - Board: ' . 	date( "d/m/Y", $assign->externaldate) . ' -> ' . date( "d/m/Y", $value["externalDate"]));
 								}
 							}
 						}
@@ -927,32 +927,36 @@ function create_new_modules(){
 				$course->fullname = $v->fullname;
 				$course->shortname = $v->shortname;
 				$course->summary = $v->summary;
+				$course->summaryformat  = FORMAT_HTML;
 				$course->category = $category;
 				$course->idnumber = $v->idnumber;
 				$course->startdate = strtotime($v->startdate);
 				$course->enddate = strtotime($v->enddate);
 
 				// Defaults
-				$course->visible = get_config('moodlecourse', 'visible');	
-				$course->format = get_config('moodlecourse', 'format');	
-				$course->numsections = get_config('moodlecourse', 'numsections');	
-				$course->lang = get_config('moodlecourse', 'lang');	
-				$course->newsitems = get_config('moodlecourse', 'newsitems');	
-				$course->showgrades = get_config('moodlecourse', 'showgrades');	
-				$course->showreports = get_config('moodlecourse', 'showreports');	
-				$course->maxbytes = get_config('moodlecourse', 'maxbytes');	
-				$course->groupmode = get_config('moodlecourse', 'groupmode');	
-				$course->groupmodeforce = get_config('moodlecourse', 'groupmodeforce');	
-				$course->enablecompletion = get_config('moodlecourse', 'enablecompletion');	
-			   
-				$course = create_course($course);
+				$course->visible = get_config('moodlecourse', 'visible');
+				$course->format = get_config('moodlecourse', 'format');
+				$course->numsections = get_config('moodlecourse', 'numsections');
+				$course->lang = get_config('moodlecourse', 'lang');
+				$course->newsitems = get_config('moodlecourse', 'newsitems');
+				$course->showgrades = get_config('moodlecourse', 'showgrades');
+				$course->showreports = get_config('moodlecourse', 'showreports');
+				$course->maxbytes = get_config('moodlecourse', 'maxbytes');
+				$course->groupmode = get_config('moodlecourse', 'groupmode');
+				$course->groupmodeforce = get_config('moodlecourse', 'groupmodeforce');
+				$course->enablecompletion = get_config('moodlecourse', 'enablecompletion');
+			
+				$newcourse = create_course($course);
 
 				// Import from template module
 				$courseexternal = new core_course_external();
-				$courseexternal->import_course(get_config('local_quercus_tasks', 'moduletemplate'), $course->id, 1);
+				$courseexternal->import_course(get_config('local_quercus_tasks', 'moduletemplate'), $newcourse->id, 1);
 
-				if($course->id > 1 ){
-					mtrace($course->shortname . ' created.');
+				update_course($newcourse);
+				rebuild_course_cache($newcourse->id);
+				
+				if($newcourse->id > 1 ){
+					mtrace($newcourse->shortname . ' created.');
 				}else{
 					mtrace(get_string('notcreatederror', 'local_quercus_tasks', ['type'=>'module']) . $v->shortname);
 				}
