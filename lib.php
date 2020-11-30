@@ -908,7 +908,7 @@ function create_new_modules(){
 	
 	$acadyear = get_config('local_quercus_tasks', 'acadyear');
 	$modulelimit = get_config('local_quercus_tasks', 'modulelimit');
-	$newmodules = $DB->get_records_sql("SELECT fullname, shortname, summary, category_path, idnumber, startdate, enddate 
+	$newmodules = $DB->get_records_sql("SELECT id, fullname, shortname, summary, category_path, idnumber, startdate, enddate 
 										FROM mdl_local_quercus_modules
 										WHERE idnumber NOT IN ( SELECT idnumber FROM mdl_course)
 										AND acadyear = ?", array($acadyear), 0 , $modulelimit);
