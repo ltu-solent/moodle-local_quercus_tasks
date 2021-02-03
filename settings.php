@@ -31,6 +31,7 @@ $settings->add(new admin_setting_configtext('local_quercus_tasks/srsgws', get_st
 
 $settings->add(new admin_setting_heading('assignmentsettings', get_string('assignmentsettings', 'local_quercus_tasks'), ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/cutoffinterval', get_string('cutoffinterval', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/cutoffintervalsecondplus', get_string('cutoffintervalsecondplus', 'local_quercus_tasks'), '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/gradingdueinterval', get_string('gradingdueinterval', 'local_quercus_tasks'), '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/grademarkscale', get_string('grademarkscale', 'local_quercus_tasks'), '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/grademarkexemptscale', get_string('grademarkexemptscale', 'local_quercus_tasks'), '', ''));

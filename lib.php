@@ -9,7 +9,6 @@ require_once(dirname(__FILE__).'/../../mod/assign/externallib.php');
 require_once(dirname(__FILE__).'/../../mod/assign/lib.php');
 require_once(dirname(__FILE__).'/../../mod/assign/locallib.php');
 
-// Disable assignment tool while script runs to prevent assignments being added via the front end?
 class local_create_assign extends assign {
 
 	public function __construct($coursemodulecontext, $coursemodule, $course) {
@@ -17,7 +16,6 @@ class local_create_assign extends assign {
 	}
 }
 
-// function insert_assign($course, $assignmentidnumber, $assessmentdescription, $availablefrom, $duedate, $sitting, $sittingdescription, $formdataconfig){
 function insert_assign($course, $quercusdata, $formdataconfig){
 	global $DB, $CFG;
 
@@ -52,23 +50,25 @@ function insert_assign($course, $quercusdata, $formdataconfig){
 	$formdata->duedate = $duedate->getTimestamp() - $dst;
 
 	// Cut off date
-	//if($quercusdata->sittingdescription == 'FIRST_SITTING'){
-	if(($quercusdata->sittingdescription == 'FIRST_SITTING' && $quercusdata) && check_if_exam($quercusdata->assessmentcode) === false){
+	if (check_if_exam($quercusdata->assessmentcode) === true) {
+		$formdata->cutoffdate = $duedate->getTimestamp() - $dst;
+	}else{
 		$time = new DateTime('now', core_date::get_user_timezone_object());
 		$time = DateTime::createFromFormat('U', $quercusdata->duedate);
 		$timezone = core_date::get_user_timezone($time);
-//Covid-19 extension start
-		//$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
-		$modifystring = calculate_interval($quercusdata->duedate, 'cutoffinterval');
-//Covid-19 extension end
+		
+		if($quercusdata->sittingdescription == 'FIRST_SITTING'){	
+			$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
+		}else if($quercusdata->sittingdescription != 'FIRST_SITTING'){
+			$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffintervalsecondplus') . ' week';
+		}
+		
 		$cutoffdate  = 	$time->modify($modifystring);
 		$time->setTime(16, 0, 0);
 		$cutoffdate = $time->getTimestamp();
 		$dst = dst_offset_on($cutoffdate, $timezone);
 		$formdata->cutoffdate = $time->getTimestamp() - $dst;
-	}else{
-		$formdata->cutoffdate = $duedate->getTimestamp() - $dst;
-	}
+	}	
 
 	// Grading due date
 	$time = new DateTime('now', core_date::get_user_timezone_object());
@@ -282,9 +282,9 @@ function create_assignments(){
 					}else{
 						mtrace("Cannot create " . $quercusdata->assignmentidnumber . " " . $quercusdata->sittingdescription . " in unit " . $unitinstance . " - Unit does not exist");
 					}
-			}else{
-				mtrace("Cannot create " . $quercusdata->assignmentidnumber . " " . $quercusdata->sittingdescription . " in unit " . $unitinstance . " - No due date provided");
-			}
+				}else{
+					mtrace("Cannot create " . $quercusdata->assignmentidnumber . " " . $quercusdata->sittingdescription . " in unit " . $unitinstance . " - No due date provided");
+				}
 			}
 		}
 	}else{
@@ -619,12 +619,11 @@ function update_dates(){
 				$assessmentCode = $value["assessmentCode"]; //assignment id
 				$sitting = $value["sitting"];
 				$assignmentidnumber = $academicYear  . '_' . $assessmentCode;
+				
+				if(isset($value["dueDate"])){
+					$course = $DB->get_record('course', array('idnumber' => $unitinstance));
 
-				$course = $DB->get_record('course', array('idnumber' => $unitinstance));
-
-				if($course){
-
-					if($course->startdate > '1533081600'){
+					if($course){
 						$assign = $DB->get_record_sql('	SELECT a.*, cm.id cm_id, cm.instance cm_instance, s.id sitting_id, s.externaldate
 															FROM {course_modules} cm
 															INNER JOIN {local_quercus_tasks_sittings} s ON s.assign = cm.instance
@@ -658,49 +657,49 @@ function update_dates(){
 											' - Available from: ' . 	date( "d/m/Y h:i", $assign->allowsubmissionsfromdate) . ' -> ' . date( "d/m/Y h:i", $availablefrom));
 							}
 
-							if(isset($value["dueDate"])){
-								// Due date - Update regardless
-								$duedate = $value["dueDate"];
-								$time = new DateTime('now', core_date::get_user_timezone_object());
-								$time = DateTime::createFromFormat('U', $duedate);
-								$time->setTime(16, 0, 0);
-								$timezone = core_date::get_user_timezone($time);
-								$dst = dst_offset_on($duedate, $timezone);
-								$duedate = $time->getTimestamp() - $dst;
+							
+							// Due date - Update regardless
+							$duedate = $value["dueDate"];
+							$time = new DateTime('now', core_date::get_user_timezone_object());
+							$time = DateTime::createFromFormat('U', $duedate);
+							$time->setTime(16, 0, 0);
+							$timezone = core_date::get_user_timezone($time);
+							$dst = dst_offset_on($duedate, $timezone);
+							$duedate = $time->getTimestamp() - $dst;
 
-								// Cut off date	- Update regardless
+							// Cut off date	- Update regardless
+							if(check_if_exam($assessmentCode) === true){
+								$cutoffdate = $duedate;
+							}else{
 								$time = new DateTime('now', core_date::get_user_timezone_object());
 								$time = DateTime::createFromFormat('U', $value["dueDate"]);
 								$timezone = core_date::get_user_timezone($time);
-//Covid-19 extension start
-								//$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
-								$modifystring = calculate_interval($value["dueDate"], 'cutoffinterval');
-//Covid-19 extension end
+								
+								if($value["sittingDescription"] == 'FIRST_SITTING'){	
+									$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
+								}else if($value["sittingDescription"] != 'FIRST_SITTING'){
+									$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffintervalsecondplus') . ' week';
+								}
+								
 								$cutoffdate  = 	$time->modify($modifystring);
 								$time->setTime(16, 0, 0);
 								$cutoffdate = $time->getTimestamp();
 								$dst = dst_offset_on($cutoffdate, $timezone);
 								$cutoffdate = $time->getTimestamp() - $dst;
-
-								// Cut off date for second sittings
-								//if($value["sittingDescription"] != 'FIRST_SITTING'){
-								if($value["sittingDescription"] != 'FIRST_SITTING' || check_if_exam($assessmentCode) === true){
-									$cutoffdate = $duedate;
-								}
-
-								// Grading due date	- Update regardless
-								$time = new DateTime('now', core_date::get_user_timezone_object());
-								$time = DateTime::createFromFormat('U', $value["dueDate"]);
-								$timezone = core_date::get_user_timezone($time);
-								$modifystring = '+' . get_config('local_quercus_tasks', 'gradingdueinterval') . ' week';
-								$gradingduedate  = 	$time->modify($modifystring);
-								//Set time after date is adjusted in case of dst changeover
-								$time->setTime(16, 0, 0);
-								$gradingduedate = $time->getTimestamp();
-								$dst = dst_offset_on($gradingduedate, $timezone);
-								$gradingduedate = $time->getTimestamp() - $dst;
 							}
 
+							// Grading due date	- Update regardless
+							$time = new DateTime('now', core_date::get_user_timezone_object());
+							$time = DateTime::createFromFormat('U', $value["dueDate"]);
+							$timezone = core_date::get_user_timezone($time);
+							$modifystring = '+' . get_config('local_quercus_tasks', 'gradingdueinterval') . ' week';
+							$gradingduedate  = 	$time->modify($modifystring);
+							//Set time after date is adjusted in case of dst changeover
+							$time->setTime(16, 0, 0);
+							$gradingduedate = $time->getTimestamp();
+							$dst = dst_offset_on($gradingduedate, $timezone);
+							$gradingduedate = $time->getTimestamp() - $dst;
+							
 							if($duedate != $assign->duedate){ // Covid - may need to remove this check if all dates need updating.
 								//Update assignment dates
 								$newdates = new stdClass();
@@ -742,7 +741,7 @@ function update_dates(){
 											' - Board: ' . 	date( "d/m/Y", $assign->externaldate) . ' -> ' . date( "d/m/Y", $value["externalDate"]));
 								}
 							}
-						}
+						}					
 					}
 				}
 			}
@@ -1087,17 +1086,8 @@ function delete_courses(){
 	}else{
 		mtrace(get_string('nodelete', 'local_quercus_tasks'));
 	}
-}
 
-function calculate_interval($date){
-		if($date >= 1584057600 && $date <= 1596153600){ // 13/03/2020 - 31/07/2020
-			$modifystring = '+2 week';
-		}else{
-			$modifystring = '+' . get_config('local_quercus_tasks', 'cutoffinterval') . ' week';
-		}
-	return $modifystring;
 }
-
 function check_if_exam($assessmentcode){
 	if (strpos('x'.$assessmentcode, 'EXAM') == 1) {
 	    return true;

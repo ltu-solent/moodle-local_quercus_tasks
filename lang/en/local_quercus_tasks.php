@@ -13,6 +13,7 @@ $string['coursesview'] = 'Courses view name';
 $string['createnewmodules'] = 'Create new modules';
 $string['createmodulessettings'] = 'Create new modules settings';
 $string['cutoffinterval'] = 'Cut off date interval in weeks';
+$string['cutoffintervalsecondplus'] = 'Cut off date interval in weeks for second/third+ sittings';
 $string['datafile'] = 'Assignment XML data file path';
 $string['dataviews'] = 'Quercus data views';
 $string['deletecategories'] = 'Delete categories';
