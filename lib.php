@@ -429,7 +429,9 @@ function update_log($response){
 
 function get_retry_list(){
 	global $DB;
+	
 	// Get grades to be re-processed and add to array
+	$modulelimit = get_config('local_quercus_tasks', 'exportmodulelimit');	
 	$reprocess = $DB->get_records_sql('SELECT
 										qg.id, u.id "moodlestudentid", u.idnumber "studentid", u.firstname "name", u.lastname "surname",
 										SUBSTRING_INDEX(c.shortname,"_",1) modulecode, c.shortname moduleinstanceid, c.fullname moduledescription,
@@ -454,7 +456,7 @@ function get_retry_list(){
 											JOIN {course_modules} cm ON cm.id = qg.course_module
 											JOIN {assign} a ON a.id = qg.assign
 										  WHERE response IS NULL
-										  LIMIT 2
+										  LIMIT ' . $modulelimit . '
 										) limitmodule
 										ON c.shortname IN (limitmodule.shortname)
 										WHERE response IS NULL
@@ -526,7 +528,11 @@ function match_grades($allgrades, $student, $gradeinfo){
 }
 
 function get_new_grades($lastruntime){
-  global $CFG, $DB;
+	global $CFG, $DB;
+
+	if($lastruntime == NULL){
+		$lastruntime = 0;
+	}
 	// Get assign ids for new assignments
 	$assignids = $DB->get_records_sql('SELECT iteminstance FROM {grade_items} where itemmodule = ? AND idnumber != ? AND (locked > ? AND locktime = ?)', array('assign', '', $lastruntime, 0)); //change to $time 1517317200
 
@@ -559,11 +565,11 @@ function get_new_grades($lastruntime){
 					if($grade == -1){
 						$grade = 0;
 					}
-					$insertid = insert_log($cm, $sitting, $course, $gradeinfo, $grade, $student);
+					$insertid = insert_log($cm, $sitting, $course, $gradeinfo, $grade, $student); 
 				}
-			}
-		}
-		return true;
+			}			
+			return true;
+		}		
 	}else{
 		return false;
 	}
@@ -906,7 +912,7 @@ function create_new_modules(){
 	global $DB;	
 	
 	$acadyear = get_config('local_quercus_tasks', 'acadyear');
-	$modulelimit = get_config('local_quercus_tasks', 'modulelimit');
+	$modulelimit = get_config('local_quercus_tasks', 'createmodulelimit');
 	$newmodules = $DB->get_records_sql("SELECT id, fullname, shortname, summary, category_path, idnumber, startdate, enddate 
 										FROM mdl_local_quercus_modules
 										WHERE idnumber NOT IN ( SELECT idnumber FROM mdl_course)

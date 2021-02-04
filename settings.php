@@ -28,6 +28,7 @@ $settings = new admin_settingpage('local_quercus_tasks', new lang_string('plugin
 
 $settings->add(new admin_setting_heading('exportsettings', get_string('exportsettings', 'local_quercus_tasks'), ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/srsgws', get_string('srsgws', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/exportmodulelimit', get_string('exportmodulelimit', 'local_quercus_tasks'), '', ''));
 
 $settings->add(new admin_setting_heading('assignmentsettings', get_string('assignmentsettings', 'local_quercus_tasks'), ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/cutoffinterval', get_string('cutoffinterval', 'local_quercus_tasks'), '', ''));
@@ -56,7 +57,7 @@ $settings->add(new admin_setting_configtext('local_quercus_tasks/coursesview', g
 $settings->add(new admin_setting_heading('createmodulessettings', get_string('createmodulessettings', 'local_quercus_tasks'), ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/acadyear', get_string('acadyear', 'local_quercus_tasks'), '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/moduletemplate', get_string('moduletemplate', 'local_quercus_tasks'), '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/modulelimit', get_string('modulelimit', 'local_quercus_tasks'), '', ''));
+$settings->add(new admin_setting_configtext('local_quercus_tasks/createmodulelimit', get_string('createmodulelimit', 'local_quercus_tasks'), '', ''));
 
 $settings->add(new admin_setting_heading('deletecoursessettings', get_string('deletecourses', 'local_quercus_tasks'), ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/courselimit', get_string('courselimit', 'local_quercus_tasks'), '', ''));
