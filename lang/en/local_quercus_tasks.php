@@ -20,6 +20,7 @@ $string['dataviews'] = 'Quercus data views';
 $string['deletecategories'] = 'Delete categories';
 $string['deletecourses'] = 'Delete courses';
 $string['deleted'] = 'Deleted {$a->shortname} - {$a->fullname}';
+$string['deleting'] = 'Deleting {$a->shortname} - {$a->fullname}';
 $string['emaillt'] = 'LT email address';
 $string['enrolmentview'] = 'Enrolment view name';
 $string['errordeleting'] = 'Error deleting {$a->shortname} - {$a->fullname}';

@@ -1092,11 +1092,10 @@ function delete_courses(){
 		core_php_time_limit::raise();
 		// Delete courses
 		foreach($deletecourses as $k=>$v){
+			mtrace(get_string('deleting', 'local_quercus_tasks',['shortname'=>$v->shortname, 'fullname'=>$v->fullname]));
 			$deleted = delete_course($v->id, true);
 			if($deleted == 1){
 				mtrace(get_string('deleted', 'local_quercus_tasks', ['shortname'=>$v->shortname, 'fullname'=>$v->fullname]));
-			}else{
-				mtrace(get_string('errordeleting', 'local_quercus_tasks',['shortname'=>$v->shortname, 'fullname'=>$v->fullname]));
 			}
 		}
 		fix_course_sortorder();
