@@ -37,7 +37,6 @@ $settings->add(new admin_setting_configtext('local_quercus_tasks/gradingdueinter
 $settings->add(new admin_setting_configtext('local_quercus_tasks/grademarkscale', get_string('grademarkscale', 'local_quercus_tasks'), '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/grademarkexemptscale', get_string('grademarkexemptscale', 'local_quercus_tasks'), '', ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/boardbuffer', get_string('boardbuffer', 'local_quercus_tasks'), '', ''));
-$settings->add(new admin_setting_configtext('local_quercus_tasks/releaseroles', get_string('releaseroles', 'local_quercus_tasks'), '', ''));
 
 $settings->add(new admin_setting_heading('supportsettings', get_string('supportsettings', 'local_quercus_tasks'), ''));
 $settings->add(new admin_setting_configtext('local_quercus_tasks/gradinghelpurl', get_string('gradinghelpurl', 'local_quercus_tasks'), '', ''));

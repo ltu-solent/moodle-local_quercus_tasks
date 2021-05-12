@@ -24,7 +24,7 @@
 
 $capabilities = array(
 
-    'local/quercustasks:releasegrades' => array(
+    'local/quercus_tasks:releasegrades' => array(
 
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,

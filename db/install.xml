@@ -4,6 +4,35 @@
       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
   >
     <TABLES>
+		<TABLE NAME="local_quercus_grades" COMMENT="local_quercus_grades table retrofitted from MySQL">
+			<FIELDS>
+			<FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
+			<FIELD NAME="assign" TYPE="int" LENGTH="18" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="sitting" TYPE="int" LENGTH="18" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="course" TYPE="int" LENGTH="18" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="course_module" TYPE="int" LENGTH="18" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="grader" TYPE="int" LENGTH="18" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="student" TYPE="int" LENGTH="18" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="converted_grade" TYPE="int" LENGTH="18" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="response" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="parent_request_id" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="request_id" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="payload_error" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="processed" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="timecreated" TYPE="int" LENGTH="18" NOTNULL="false" SEQUENCE="false"/>
+			<FIELD NAME="timemodified" TYPE="int" LENGTH="18" NOTNULL="false" SEQUENCE="false"/>
+			</FIELDS>
+			
+			<KEYS>
+			  <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+			  <KEY NAME="assign" TYPE="foreign" FIELDS="assign" REFTABLE="assign" REFFIELDS="id" COMMENT="The assignment instance." PREVIOUS="primary"/>
+			  <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT="The course instance." PREVIOUS="primary"/>
+			  <KEY NAME="course_module" TYPE="foreign" FIELDS="course_module" REFTABLE="course_modules" REFFIELDS="id" COMMENT="The course module." PREVIOUS="primary"/>
+			  <KEY NAME="grader" TYPE="foreign" FIELDS="grader" REFTABLE="user" REFFIELDS="id" COMMENT="The user who released the grades." PREVIOUS="primary"/>
+			  <KEY NAME="student" TYPE="foreign" FIELDS="student" REFTABLE="user" REFFIELDS="id" COMMENT="The student." PREVIOUS="primary"/>
+			</KEYS>
+		</TABLE>
+
       <TABLE NAME="local_quercus_tasks_sittings" COMMENT="Holds sitting and attempt info for Quercus tasks">
         <FIELDS>
           <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="assign"/>
@@ -30,6 +59,7 @@
         <KEY NAME="courseidnumber" TYPE="foreign" FIELDS="courseidnumber" REFTABLE="course" REFFIELDS="idnumber"/>
       </KEYS>
       </TABLE>
+	  
       <TABLE NAME="local_quercus_staff_2" COMMENT="Second table for importing data to">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
