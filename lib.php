@@ -17,7 +17,7 @@ class local_create_assign extends assign {
 }
 
 function insert_assign($course, $quercusdata, $formdataconfig){
-	global $DB, $CFG;
+	global $DB;
 
 	$formdata = new stdClass();
 	$formdata->id = null;
@@ -218,8 +218,8 @@ function create_assignments(){
 		$assign_config->assignfeedback_penalties_enabled = get_config('assignfeedback_penalties', 'default');
 		$assign_config->assignfeedback_sample_enabled = get_config('assignfeedback_sample', 'default');
 
-		foreach($array as $arr=>$elem){
-			foreach($elem as $key=>$value){
+		foreach($array as $elem){
+			foreach($elem as $value){
 
 				$unitinstance = $value['moduleInstance']; //course
 				$course = $DB->get_record('course', array('idnumber' => $unitinstance));
@@ -394,7 +394,7 @@ function insert_log($cm, $sitting, $course, $gradeinfo, $grade, $student){
 function update_log($response){
 	global $DB;
 	$moduleinstanceid = null;
-	foreach($response['Payload'] as $key => $val){
+	foreach($response['Payload'] as $val){
 
 		$sql = "UPDATE mdl_local_quercus_grades
 						SET response = ?, parent_request_id = ?, request_id = ?, processed = ?, payload_error = ?, timemodified = ?
@@ -482,13 +482,13 @@ function get_retry_list(){
 
 	$moduleinstanceid = null;
 	$dataarray = array();
-	foreach($reprocess as $key => $value){
+	foreach($reprocess as $value){
 		if($value->moduleinstanceid != $moduleinstanceid){
 			$dataarray[$value->moduleinstanceid] = array();
 		}
 		$moduleinstanceid = $value->moduleinstanceid;
 	}
-	foreach($reprocess as $k => $v){
+	foreach($reprocess as $v){
 		$coursemodule["moodlestudentid"] = $v->moodlestudentid;
 		$coursemodule["studentid"] = $v->studentid;
 		$coursemodule["name"] = $v->name;
@@ -517,8 +517,8 @@ function get_retry_list(){
 
 function match_grades($allgrades, $student, $gradeinfo){
 	$grade = (string) 0;
-	foreach($allgrades as $gk=>$gv){
-		foreach ($gv['grades'] as $key => $value) {
+	foreach($allgrades as $gv){
+		foreach ($gv['grades'] as $value) {
 			if($value['userid'] == $student->id){
 				$grade = (string) convert_grade($gradeinfo->scaleid, substr($value['grade'], 0, strpos($value['grade'], ".")));
 			}
@@ -528,7 +528,7 @@ function match_grades($allgrades, $student, $gradeinfo){
 }
 
 function get_new_grades($lastruntime){
-	global $CFG, $DB;
+	global $DB;
 
 	if($lastruntime == NULL){
 		$lastruntime = 0;
@@ -537,7 +537,7 @@ function get_new_grades($lastruntime){
 	$assignids = $DB->get_records_sql('SELECT iteminstance FROM {grade_items} where itemmodule = ? AND idnumber != ? AND (locked > ? AND locktime = ?)', array('assign', '', $lastruntime, 0)); //change to $time 1517317200
 
 	if(count($assignids) > 0){
-		foreach($assignids as $k=>$v){
+		foreach($assignids as $v){
 			// Get course module
 			$cm = get_coursemodule_from_instance('assign', $v->iteminstance, 0);
 			//Get course
@@ -559,17 +559,21 @@ function get_new_grades($lastruntime){
 			$allgrades = mod_assign_external::get_grades($assignment);
 			$allgrades = $allgrades['assignments'];
 
-			foreach($users as $key => $student){
-				if(is_numeric($student->idnumber)){
-					$grade = match_grades($allgrades, $student, $gradeinfo);
+			foreach($users as $user){
+			    if(is_numeric($user->idnumber)){
+			        $grade = match_grades($allgrades, $user, $gradeinfo);
 					if($grade == -1){
 						$grade = 0;
 					}
-					$insertid = insert_log($cm, $sitting, $course, $gradeinfo, $grade, $student); 
+					$insertid = insert_log($cm, $sitting, $course, $gradeinfo, $grade, $user); 
+				}else{
+					mtrace(get_string('invalidstudent', 'local_quercus_tasks', 
+					    ['firstname'=>$user->firstname, 'lastname'=>$user->lastname, 'idnumber'=>$user->idnumber]));
 				}
 			}			
-			return true;
+			
 		}		
+		return true;
 	}else{
 		return false;
 	}
@@ -617,8 +621,8 @@ function update_dates(){
 		$json = json_encode($xml);
 		$array = json_decode($json,TRUE);
 
-		foreach($array as $arr=>$elem){
-			foreach($elem as $key=>$value){
+		foreach($array as $elem){
+			foreach($elem as $value){
 
 				$unitinstance = $value['moduleInstance']; //course
 				$academicYear = $value["academicYear"];
@@ -756,7 +760,7 @@ function update_dates(){
 }
 
 function staff_enrolments(){
-	global $DB, $CFG;
+	global $DB;
 	// Connects to the Quercus view
 	$host = get_config('local_quercus_tasks', 'connectionhost');
 	$password = get_config('local_quercus_tasks', 'connectionpassword');
@@ -865,7 +869,7 @@ function staff_enrolments(){
 }
 
 function get_new_modules(){	
-	global $DB, $CFG;
+	global $DB;
 	// Connects to the Quercus view
 	$host = get_config('local_quercus_tasks', 'connectionhost');
 	$password = get_config('local_quercus_tasks', 'connectionpassword');
@@ -921,7 +925,7 @@ function create_new_modules(){
 	if(count($newmodules) > 0){
 										
 		$helper = new tool_uploadcourse_helper();
-		foreach($newmodules as $k=>$v){
+		foreach($newmodules as $v){
 			
 			$category = explode( ' / ', $v->category_path);
 			$category = $helper->resolve_category_by_path($category);
@@ -1004,7 +1008,7 @@ function update_modules(){
 										OR  unix_timestamp(STR_TO_DATE(m.enddate,'%d-%m-%Y')) != c.enddate");
 
 	if(count($updatemodules) > 0){
-		foreach($updatemodules as $k=>$v){
+		foreach($updatemodules as $v){
 			$newdates = new stdClass();
 			$newdates->id = $v->id;
 			$newdates->startdate = $v->newstartdate;
@@ -1021,7 +1025,7 @@ function update_modules(){
 }
 
 function get_new_courses(){	
-	global $DB, $CFG;
+	global $DB;
 	// Connects to the Quercus view
 	$host = get_config('local_quercus_tasks', 'connectionhost');
 	$password = get_config('local_quercus_tasks', 'connectionpassword');
@@ -1091,7 +1095,7 @@ function delete_courses(){
 		}
 		core_php_time_limit::raise();
 		// Delete courses
-		foreach($deletecourses as $k=>$v){
+		foreach($deletecourses as $v){
 			mtrace(get_string('deleting', 'local_quercus_tasks',['shortname'=>$v->shortname, 'fullname'=>$v->fullname]));
 			$deleted = delete_course($v->id, true);
 			if($deleted == 1){
