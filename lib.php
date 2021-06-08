@@ -566,6 +566,8 @@ function get_new_grades($lastruntime){
 						$grade = 0;
 					}
 					$insertid = insert_log($cm, $sitting, $course, $gradeinfo, $grade, $user); 
+					mtrace('Course: ' . $course->shortname . ', Assignment code: '. $cm->idnumber  . ', Grader id: '
+					. $gradeinfo->id . ', Grade: '. $grade. ', Student idnumber: '. $user->idnumber);
 				}else{
 					mtrace(get_string('invalidstudent', 'local_quercus_tasks', 
 					    ['firstname'=>$user->firstname, 'lastname'=>$user->lastname, 'idnumber'=>$user->idnumber]));
