@@ -929,8 +929,9 @@ function create_new_modules(){
 		$helper = new tool_uploadcourse_helper();
 		foreach($newmodules as $v){
 			
-			$category = explode( ' / ', $v->category_path);
-			$category = $helper->resolve_category_by_path($category);
+			//$category = explode( ' / ', $v->category_path);
+			//$category = $helper->resolve_category_by_path($category);
+			$category = $helper->resolve_category_by_idnumber($v->category_path);
 
 			if($category != false){
 				// Build a course.
