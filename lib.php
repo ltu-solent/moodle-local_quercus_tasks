@@ -396,7 +396,7 @@ function update_log($response){
 	$moduleinstanceid = null;
 	foreach($response['Payload'] as $val){
 
-		$sql = "UPDATE mdl_local_quercus_grades
+		$sql = "UPDATE {local_quercus_grades}
 						SET response = ?, parent_request_id = ?, request_id = ?, processed = ?, payload_error = ?, timemodified = ?
 						WHERE id =
 						(
@@ -920,8 +920,8 @@ function create_new_modules(){
 	$acadyear = get_config('local_quercus_tasks', 'acadyear');
 	$modulelimit = get_config('local_quercus_tasks', 'createmodulelimit');
 	$newmodules = $DB->get_records_sql("SELECT id, fullname, shortname, summary, category_path, idnumber, startdate, enddate 
-										FROM mdl_local_quercus_modules
-										WHERE idnumber NOT IN ( SELECT idnumber FROM mdl_course)
+										FROM {local_quercus_modules}
+										WHERE idnumber NOT IN ( SELECT idnumber FROM {course})
 										AND acadyear = ?", array($acadyear), 0 , $modulelimit);
 									
 	if(count($newmodules) > 0){
