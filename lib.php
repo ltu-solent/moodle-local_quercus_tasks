@@ -16,6 +16,14 @@ class local_create_assign extends assign {
 	}
 }
 
+/**
+ * Creates an assignment for a course with given quercusdata
+ *
+ * @param object $course
+ * @param object $quercusdata
+ * @param object $formdataconfig
+ * @return object|false Course Module instance
+ */
 function insert_assign($course, $quercusdata, $formdataconfig){
 	global $DB;
 
