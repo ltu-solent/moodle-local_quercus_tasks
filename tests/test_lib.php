@@ -53,10 +53,12 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
         $quercusdata = $generator->preprocess_quercusdata($quercusdataitem);
         $assigncm = insert_assign($course, $quercusdata, $this->assign_config());
         $this->assertIsObject($assigncm);
-        $this->turnitin_config($assigncm->id);
+        $this->turnitin_config($assigncm->id, $course->id);
         
         $useturnitin = $DB->get_field('plagiarism_turnitin_config', 'value', ['cm' => $assigncm->id, 'name' => 'use_turnitin']);
         $this->assertEquals(1, $useturnitin);
+        $tiicourse = $DB->get_record('plagiarism_turnitin_courses', ['courseid' => $course->id]);
+        $this->assertIsObject($tiicourse);
 
         $assign = new assign(null, $assigncm, $course);
         $doublemark = $assign->get_feedback_plugin_by_type('doublemark');

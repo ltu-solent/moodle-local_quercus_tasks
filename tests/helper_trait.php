@@ -34,9 +34,6 @@ trait local_quercus_tasks_helper_trait {
         set_config('enabled', 1, 'plagiarism_turnitin');
         set_config('plagiarism_turnitin_mod_assign', 1, 'plagiarism_turnitin');
         $this->turnitin_defaults();
-        $this->faketiicomms = $this->getMockBuilder(turnitin_comms::class)
-            ->disableOriginalConstructor()
-            ->getMock();
         $this->set_configs();
         $this->assign_config();
         
@@ -116,7 +113,7 @@ trait local_quercus_tasks_helper_trait {
      * @param int $cmid
      * @return void
      */
-    public function turnitin_config($cmid) {
+    public function turnitin_config($cmid, $courseid) {
         global $DB;
         $tiiform = new stdClass();
         $tiiform->modulename = 'assign';
@@ -126,7 +123,20 @@ trait local_quercus_tasks_helper_trait {
         foreach ($defaults as $name => $value) {
             $tiiform->$name = $value;
         }
+        // This is how default tii settings are set on the assignment.
         $tii->save_form_elements($tiiform);
+        $course = $DB->get_record('course', ['id' => $courseid]);
+        // IRL we would be calling get_course_data and this will set up the course
+        // if it doesn't exist. For testing purposes we're going to spoof this.
+        // $tii->get_course_data($cmid, $courseid); // Though this should get called
+        // when an assignment is being submitted.
+        if (!$DB->record_exists('plagiarism_turnitin_courses', ['courseid' => $courseid])) {
+            $tiicourse = new stdClass();
+            $tiicourse->courseid = $courseid;
+            $tiicourse->turnitin_ctl = $course->fullname . ' (Moodle PP)';
+            $tiicourse->turnitin_cid = 1234;
+            $DB->insert_record('plagiarism_turnitin_courses', $tiicourse);
+        }
     }
 
     /**
