@@ -1,4 +1,8 @@
 <?php
+$string['assign_filterwarning'] = '<i class="fa fa-warning"></i> <strong>Warning:</strong> You are not displaying all users and will not be able to release your grades. {$a->msg}';
+$string['assign_formativeinfo'] = '<i class="fa fa-info-circle"></i> The marks for these assignments will not be uploaded to Quercus as this is not a Quercus Assignment.';
+$string['assign_resetprefs'] = ' <a href="{$a->url}">"Reset your table preferences"</a>.';
+$string['assign_resetworkflow'] = ' <a href="{$a->url}">Set all Options to "No filter"</a>.';
 $string['pluginname'] = 'Quercus Tasks';
 $string['acadyear'] = 'Academic year in view to filter data by';
 $string['addnewassign'] = 'Add new assignments';
