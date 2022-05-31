@@ -936,11 +936,18 @@ function create_new_modules(){
 										
 		$helper = new tool_uploadcourse_helper();
 		foreach($newmodules as $v){
+			$startdate = strtotime($v->startdate);
+			$enddate = strtotime($v->enddate);
+			if ($startdate > $enddate) {
+				mtrace('Error: ' . $v->shortname . ' is scheduled to end (' .
+					$v->enddate . ') before it began (' . $v->startdate . ').');
+				continue;
+			}
+
 			
 			//$category = explode( ' / ', $v->category_path);
 			//$category = $helper->resolve_category_by_path($category);
 			$category = $helper->resolve_category_by_idnumber($v->category_path);
-
 			if($category != false){
 				// Build a course.
 				$course = new stdClass();
@@ -1020,6 +1027,11 @@ function update_modules(){
 
 	if(count($updatemodules) > 0){
 		foreach($updatemodules as $v){
+			if ($v->newstartdate > $v->newenddate) {
+				mtrace('Error: ' . $v->shortname . ' is scheduled to end (' .
+					date($v->newendate) . ') before it began ' . date($v->newstartdate) . '.');
+				continue;
+			}
 			$newdates = new stdClass();
 			$newdates->id = $v->id;
 			$newdates->startdate = $v->newstartdate;
@@ -1029,6 +1041,8 @@ function update_modules(){
 			
 			mtrace($v->shortname . ' - Start date: ' . 	$v->startdate . ' -> ' . date( "d/m/Y", $v->newstartdate) .
 			' End date: ' . 	$v->enddate . ' -> ' . date( "d/m/Y", $v->newenddate));
+			// mtrace($v->shortname . ' - Start date: ' . 	$v->startdate . ' -> ' . date( "d/m/Y", $v->newstartdate) .
+			// "($v->newstartdate)" . ' End date: ' . 	$v->enddate . ' -> ' . date( "d/m/Y", $v->newenddate) . "($v->newenddate)");
 		}	
 	}else{
 		mtrace('No dates need updating.');

@@ -133,4 +133,17 @@ class local_quercus_tasks_generator extends component_generator_base
         $record->assignmentidnumber = $quercusdata["academicYear"]  . '_' . $quercusdata["assessmentCode"];
         return $record;
     }
+
+    /**
+     * Creates an entry in the local_quercus_module table.
+     *
+     * @param array $record
+     * @return object
+     */
+    public function create_quercus_module(array $record) {
+        global $DB;
+        $record = (object)$record;
+        $record->id = $DB->insert_record('local_quercus_modules', $record);
+        return $record;
+    }
 }
