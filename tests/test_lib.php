@@ -78,10 +78,19 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
      *
      * @return void
      */
-    public function test_create_new_modules($row, $acadyear, $moduletemplate, $status, $expectedoutput) {
+    public function test_create_new_modules($row, $acadyear, $status, $expectedoutput) {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
+        // Create a Faculty category.
+        $category = $this->getDataGenerator()->create_category(['idnumber' => 'Faculty1']);
+        // Create template course.
+        $template = $this->getDataGenerator()->create_course(['fullname' => 'Module Template 2021']);
+        // Add an activity to the template.
+        $this->getDataGenerator()->create_module('label', [
+            'course' => $template->id,
+            'intro' => 'Label from Template.'
+        ]);
         // Create a quercus module - for testing purposes we don't get it directly from Quercus.
         $generator = $this->getDataGenerator()->get_plugin_generator('local_quercus_tasks');
         $quercusmodule = $generator->create_quercus_module($row);
@@ -89,11 +98,12 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
         set_config('acadyear', $acadyear, 'local_quercus_tasks');
         set_config('createmodulelimit', 1, 'local_quercus_tasks');
         // Store the template id in config.
-        set_config('moduletemplate', $moduletemplate->id, 'local_quercus_tasks');
+        set_config('moduletemplate', $template->id, 'local_quercus_tasks');
         create_new_modules();
         $newmodule = $DB->get_record('course', ['idnumber' => $row['idnumber']]);
-        if ($status === true) {
-            $this->assertNotNull($newmodule);
+        if ($status == true) {
+            $this->assertNotFalse($newmodule);
+            $this->assertEquals($category->id, $newmodule->category);
             // Check course summary text.
             $this->assertSame($row['summary'], $newmodule->summary);
             // Check it has some content from the template.
@@ -106,15 +116,6 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
     }
 
     public function new_modules_provider() {
-        // Create a Faculty category.
-        $this->getDataGenerator()->create_category(['idnumber' => 'Faculty1']);
-        // Create template course.
-        $template = $this->getDataGenerator()->create_course(['fullname' => 'Module Template 2021']);
-        // Add an activity to the template.
-        $this->getDataGenerator()->create_module('label', [
-            'course' => $template->id,
-            'intro' => 'Label from Template.'
-        ]);
         return [
             'Success' => [
                 [
@@ -128,7 +129,6 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
                     'enddate' => '31-12-2021'
                 ],
                 '2021',
-                $template,
                 true,
                 "Module1 created.\n"
             ],
@@ -144,7 +144,6 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
                     'enddate' => '25-09-2021'
                 ],
                 '2021',
-                $template,
                 false,
                 "Error: Module1 is scheduled to end (25-09-2021) before it began (09-12-2021).\n"
             ],
@@ -160,7 +159,6 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
                     'enddate' => '31-12-2022'
                 ],
                 '2021',
-                $template,
                 false,
                 "No new modules\n"
             ],
@@ -176,7 +174,6 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
                     'enddate' => '31-12-2021'
                 ],
                 '2021',
-                $template,
                 false,
                 "Cannot resolve category path Faculty2\n"
             ],
@@ -231,11 +228,24 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
         // original entry.
         // Create new entry in quercus_modules table.
         $newmodule = $generator->create_quercus_module($new);
+
+        // Actual function under test.
         update_modules();
-        //$this->expectOutputString("oldstart({$stime->getTimestamp()}) - oldend({$etime->getTimestamp()}) " . $expectedoutput);
-        $this->expectOutputString($expectedoutput);
+
         $course = $DB->get_record('course', ['idnumber' => $old['idnumber']]);
+        [$sday, $smonth, $syear] = explode('-', $new['startdate']);
+        [$eday, $emonth, $eyear] = explode('-', $new['enddate']);
+        $stime = new DateTime();
+        $stime->setDate($syear, $smonth, $sday);
+        $stime->setTime(1,0,0);
+        $etime = new DateTime();
+        $etime->setDate($eyear, $emonth, $eday);
+        $etime->setTime(0,0,0);
+
+        $this->expectOutputString($expectedoutput);
         $this->assertSame($newmodule->summary, $course->summary);
+        $this->assertEquals($course->startdate, $stime->getTimestamp());
+        $this->assertEquals($course->enddate, $etime->getTimestamp());
     }
 
     /**

@@ -946,8 +946,8 @@ function create_new_modules(){
         }
         //$category = explode( ' / ', $v->category_path);
         //$category = $helper->resolve_category_by_path($category);
-        $category = $helper->resolve_category_by_idnumber($v->category_path);
-        if (!$category) {
+        $category = tool_uploadcourse_helper::resolve_category_by_idnumber($v->category_path);
+        if ($category == false) {
             mtrace(get_string('nopatherror', 'local_quercus_tasks') . $v->category_path);
             continue;
         }
