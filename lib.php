@@ -931,84 +931,80 @@ function create_new_modules(){
 										FROM {local_quercus_modules}
 										WHERE idnumber NOT IN ( SELECT idnumber FROM {course})
 										AND acadyear = ?", array($acadyear), 0 , $modulelimit);
-									
-	if(count($newmodules) > 0){
-										
-		$helper = new tool_uploadcourse_helper();
-		foreach($newmodules as $v){
-			$startdate = strtotime($v->startdate);
-			$enddate = strtotime($v->enddate);
-			if ($startdate > $enddate) {
-				mtrace('Error: ' . $v->shortname . ' is scheduled to end (' .
-					$v->enddate . ') before it began (' . $v->startdate . ').');
-				continue;
-			}
-
-			
-			//$category = explode( ' / ', $v->category_path);
-			//$category = $helper->resolve_category_by_path($category);
-			$category = $helper->resolve_category_by_idnumber($v->category_path);
-			if($category != false){
-				// Build a course.
-				$course = new stdClass();
-				$course->fullname = $v->fullname;
-				$course->shortname = $v->shortname;
-				$course->summary = $v->summary;
-				$course->summaryformat  = FORMAT_HTML;
-				$course->category = $category;
-				$course->idnumber = $v->idnumber;
-				$course->startdate = strtotime($v->startdate);
-				$course->enddate = strtotime($v->enddate);
-
-				// Defaults
-				$course->visible = get_config('moodlecourse', 'visible');
-				$course->format = get_config('moodlecourse', 'format');
-				$course->numsections = get_config('moodlecourse', 'numsections');
-				$course->lang = get_config('moodlecourse', 'lang');
-				$course->newsitems = get_config('moodlecourse', 'newsitems');
-				$course->showgrades = get_config('moodlecourse', 'showgrades');
-				$course->showreports = get_config('moodlecourse', 'showreports');
-				$course->maxbytes = get_config('moodlecourse', 'maxbytes');
-				$course->groupmode = get_config('moodlecourse', 'groupmode');
-				$course->groupmodeforce = get_config('moodlecourse', 'groupmodeforce');
-				$course->enablecompletion = get_config('moodlecourse', 'enablecompletion');
-			
-				$newcourse = create_course($course);
-
-				// Import from template module
-				$courseexternal = new core_course_external();
-				$courseexternal->import_course(get_config('local_quercus_tasks', 'moduletemplate'), $newcourse->id, 1);
-
-				update_course($newcourse);
-				rebuild_course_cache($newcourse->id);
-				
-				//Create manual enrolment method
-				$plugin = enrol_get_plugin('manual');
-				$instance = $DB->get_record('enrol', array('courseid'=>$newcourse->id, 'enrol'=>'manual'), '*');
-
-				if(!$instance){
-					$fields = array(
-					'status'          => '0',
-					'roleid'          => '5',
-					'enrolperiod'     => '0',
-					'expirynotify'    => '0',
-					'notifyall'       => '0',
-					'expirythreshold' => '86400');
-					$instance = $plugin->add_instance($newcourse, $fields);
-				}
-				
-				if($newcourse->id > 1 ){
-					mtrace($newcourse->shortname . ' created.');
-				}else{
-					mtrace(get_string('notcreatederror', 'local_quercus_tasks', ['type'=>'module']) . $v->shortname);
-				}
-			}else{
-				mtrace(get_string('nopatherror', 'local_quercus_tasks') . $v->category_path);
-			}
-		}
-	}else{
+	if (count($newmodules) == 0) {
 		mtrace(get_string('nomodules', 'local_quercus_tasks'));
-	}
+		return;
+	}			
+	$helper = new tool_uploadcourse_helper();
+    foreach ($newmodules as $v) {
+        $startdate = strtotime($v->startdate);
+        $enddate = strtotime($v->enddate);
+        if ($startdate > $enddate) {
+            mtrace('Error: ' . $v->shortname . ' is scheduled to end (' .
+                $v->enddate . ') before it began (' . $v->startdate . ').');
+            continue;
+        }
+        //$category = explode( ' / ', $v->category_path);
+        //$category = $helper->resolve_category_by_path($category);
+        $category = $helper->resolve_category_by_idnumber($v->category_path);
+        if (!$category) {
+            mtrace(get_string('nopatherror', 'local_quercus_tasks') . $v->category_path);
+            continue;
+        }
+        // Build a course.
+        $course = new stdClass();
+        $course->fullname = $v->fullname;
+        $course->shortname = $v->shortname;
+        $course->summary = $v->summary;
+        $course->summaryformat  = FORMAT_HTML;
+        $course->category = $category;
+        $course->idnumber = $v->idnumber;
+        $course->startdate = strtotime($v->startdate);
+        $course->enddate = strtotime($v->enddate);
+
+        // Defaults
+        $course->visible = get_config('moodlecourse', 'visible');
+        $course->format = get_config('moodlecourse', 'format');
+        $course->numsections = get_config('moodlecourse', 'numsections');
+        $course->lang = get_config('moodlecourse', 'lang');
+        $course->newsitems = get_config('moodlecourse', 'newsitems');
+        $course->showgrades = get_config('moodlecourse', 'showgrades');
+        $course->showreports = get_config('moodlecourse', 'showreports');
+        $course->maxbytes = get_config('moodlecourse', 'maxbytes');
+        $course->groupmode = get_config('moodlecourse', 'groupmode');
+        $course->groupmodeforce = get_config('moodlecourse', 'groupmodeforce');
+        $course->enablecompletion = get_config('moodlecourse', 'enablecompletion');
+    
+        $newcourse = create_course($course);
+
+        // Import from template module
+        $courseexternal = new core_course_external();
+        $courseexternal->import_course(get_config('local_quercus_tasks', 'moduletemplate'), $newcourse->id, 1);
+
+        update_course($newcourse);
+        rebuild_course_cache($newcourse->id);
+        
+        //Create manual enrolment method
+        $plugin = enrol_get_plugin('manual');
+        $instance = $DB->get_record('enrol', array('courseid'=>$newcourse->id, 'enrol'=>'manual'), '*');
+
+        if (!$instance) {
+            $fields = array(
+            'status'          => '0',
+            'roleid'          => '5',
+            'enrolperiod'     => '0',
+            'expirynotify'    => '0',
+            'notifyall'       => '0',
+            'expirythreshold' => '86400');
+            $instance = $plugin->add_instance($newcourse, $fields);
+        }
+        
+        if ($newcourse->id > 1) {
+            mtrace($newcourse->shortname . ' created.');
+        } else {
+            mtrace(get_string('notcreatederror', 'local_quercus_tasks', ['type'=>'module']) . $v->shortname);
+        }
+    }
 }
 
 function update_modules(){
@@ -1024,28 +1020,27 @@ function update_modules(){
 										JOIN {course} c ON c.shortname = m.shortname
 										WHERE unix_timestamp(STR_TO_DATE(m.startdate,'%d-%m-%Y')) != c.startdate
 										OR  unix_timestamp(STR_TO_DATE(m.enddate,'%d-%m-%Y')) != c.enddate");
-
-	if(count($updatemodules) > 0){
-		foreach($updatemodules as $v){
-			if ($v->newstartdate > $v->newenddate) {
-				mtrace('Error: ' . $v->shortname . ' is scheduled to end (' .
-					date($v->newendate) . ') before it began ' . date($v->newstartdate) . '.');
-				continue;
-			}
-			$newdates = new stdClass();
-			$newdates->id = $v->id;
-			$newdates->startdate = $v->newstartdate;
-			$newdates->enddate = $v->newenddate;
-			$newdates->summary = $v->newsummary;
-			$update = $DB->update_record('course', $newdates, $bulk=false);	
-			
-			mtrace($v->shortname . ' - Start date: ' . 	$v->startdate . ' -> ' . date( "d/m/Y", $v->newstartdate) .
-			' End date: ' . 	$v->enddate . ' -> ' . date( "d/m/Y", $v->newenddate));
-			// mtrace($v->shortname . ' - Start date: ' . 	$v->startdate . ' -> ' . date( "d/m/Y", $v->newstartdate) .
-			// "($v->newstartdate)" . ' End date: ' . 	$v->enddate . ' -> ' . date( "d/m/Y", $v->newenddate) . "($v->newenddate)");
-		}	
-	}else{
+	if (count($updatemodules) == 0) {
 		mtrace('No dates need updating.');
+		return;
+	}
+	foreach($updatemodules as $v){
+		if ($v->newstartdate > $v->newenddate) {
+			mtrace('Error: ' . $v->shortname . ' is scheduled to end (' .
+				date($v->newendate) . ') before it began ' . date($v->newstartdate) . '.');
+			continue;
+		}
+		$newdates = new stdClass();
+		$newdates->id = $v->id;
+		$newdates->startdate = $v->newstartdate;
+		$newdates->enddate = $v->newenddate;
+		$newdates->summary = $v->newsummary;
+		$update = $DB->update_record('course', $newdates, $bulk=false);	
+		
+		mtrace($v->shortname . ' - Start date: ' . 	$v->startdate . ' -> ' . date( "d/m/Y", $v->newstartdate) .
+		' End date: ' . 	$v->enddate . ' -> ' . date( "d/m/Y", $v->newenddate));
+		// mtrace($v->shortname . ' - Start date: ' . 	$v->startdate . ' -> ' . date( "d/m/Y", $v->newstartdate) .
+		// "($v->newstartdate)" . ' End date: ' . 	$v->enddate . ' -> ' . date( "d/m/Y", $v->newenddate) . "($v->newenddate)");
 	}
 }
 
