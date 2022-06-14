@@ -54,6 +54,7 @@ class api {
 
     /**
      * Given a courseid, gets all assignments with an idnumber set (Quercus)
+     * Sitting will be null if it doesn't exist.
      *
      * @param int $courseid
      * @return array|false
