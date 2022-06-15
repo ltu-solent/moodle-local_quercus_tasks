@@ -1146,3 +1146,17 @@ function email_error($to, $subject, $message){
 	$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 	mail($to, $subject, $message, $headers);
 }
+
+/**
+ * Using the extend_navigation as a proxy to get the $PAGE object.
+ *
+ * @param global_navigation $navigation
+ * @return void
+ */
+function local_quercus_tasks_extend_navigation(global_navigation $navigation) {
+    global $PAGE;
+	if ($PAGE->pagetype == 'mod-assign-mod') {
+		// Going to stick with core change, for now, but might come back to this.
+		// $PAGE->requires->js_call_amd('local_quercus_tasks/assign', 'modedit');
+	}
+}
