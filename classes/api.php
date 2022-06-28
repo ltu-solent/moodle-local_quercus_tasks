@@ -66,7 +66,7 @@ class api {
         JOIN {course_modules} cm ON cm.instance = a.id
         JOIN {modules} m ON m.id = cm.module AND m.name = 'assign'
         LEFT JOIN {local_quercus_tasks_sittings} qs ON qs.assign = .a.id
-        WHERE a.course = :courseid AND cm.idnumber != ''";
+        WHERE a.course = :courseid AND cm.idnumber <> ''";
         return $DB->get_records_sql($sql, ['courseid' => $courseid]);
     }
 
@@ -83,7 +83,7 @@ class api {
         JOIN {course_modules} cm ON cm.instance = a.id
         JOIN {modules} m ON m.id = cm.module AND m.name = 'assign'
         LEFT JOIN {local_quercus_tasks_sittings} qs ON qs.assign = a.id
-        WHERE a.id = :assignid AND cm.idnumber != ''";
+        WHERE a.id = :assignid AND cm.idnumber <> ''";
         return $DB->get_record_sql($sql, ['assignid' => $assignid], MUST_EXIST);
     }
 
