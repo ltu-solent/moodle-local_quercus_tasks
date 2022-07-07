@@ -2,7 +2,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2021020401;   // The (date) version of this plugin
+$plugin->version  = 2021020402;   // The (date) version of this plugin
 $plugin->requires = 2015111603;   // Requires this Moodle version
-$plugin->release = 'v3.9.2';
+$plugin->release = 'v3.9.3';
 $plugin->component = 'local_quercus_tasks';
