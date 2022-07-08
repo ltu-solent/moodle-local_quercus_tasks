@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<COMPATIBILITY_MATRIX>
+  <PLUGIN name="local_quercus_tasks">
+    <PHP_EXTENSIONS>
+      <PHP_EXTENSION name="oci8" level="optional">
+        <FEEDBACK>
+          <ON_CHECK message="ocierror" plugin="local_quercus_tasks" />
+        </FEEDBACK>
+      </PHP_EXTENSION>
+    </PHP_EXTENSIONS>
+  </PLUGIN>
+</COMPATIBILITY_MATRIX>
