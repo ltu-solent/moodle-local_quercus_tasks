@@ -12,6 +12,7 @@ $string['connectiondatabase'] = 'Quercus connection database';
 $string['connectionhost'] = 'Quercus connection host';
 $string['connectionpassword'] = 'Quercus connection password';
 $string['connectionsettings'] = 'Data import connection settings';
+$string['connectionsettingserror'] = 'The settings for the connection are not correct.';
 $string['courselimit'] = 'Course limit';
 $string['coursesview'] = 'Courses view name';
 $string['createmodulelimit'] = 'Number of modules to create per batch';
@@ -19,6 +20,8 @@ $string['createnewmodules'] = 'Create new modules';
 $string['createmodulessettings'] = 'Create new modules settings';
 $string['cutoffinterval'] = 'Cut off date interval in weeks';
 $string['cutoffintervalsecondplus'] = 'Cut off date interval in weeks for second/third+ sittings';
+
+$string['connectiondatabaserror'] = 'There was a problem connecting to the database';
 $string['datafile'] = 'Assignment XML data file path';
 $string['dataviews'] = 'Quercus data views';
 $string['deletecategories'] = 'Delete categories';
@@ -45,10 +48,15 @@ $string['notcreatederror'] = '{$a->type} not created ';
 $string['nodelete'] = 'Nothing to delete';
 $string['nomodules'] = 'No new modules';
 $string['nopatherror'] = 'Cannot resolve category path ';
+
+$string['ocierror'] = 'OCI is not installed';
+
 $string['quercus_tasks:releasegrades'] = 'Release grades to Quercus';
 $string['releaseroles'] = 'Comma separated list of role IDs that can release grades (no spaces)';
 $string['srsgws'] = 'SRS-GWS URL';
 $string['staffenrolments'] = 'Staff external database enrolments';
 $string['supportsettings'] = 'Support settings';
+
+$string['testconnection'] = 'Test connection';
 $string['updatedates'] = 'Update assignment dates';
 $string['updatemodules'] = 'Update module dates';
