@@ -782,7 +782,7 @@ function staff_enrolments(){
 		$message = "Error connecting to Quercus for updating local_quercus_staff oci_connect doesn't exist.. \r\n\n";
 		email_error($to, $subject, $message);
 		mtrace('Error connecting to Quercus - oci_connect doesn\'t exist.');
-		return;
+		throw new moodle_exception('ocierror', 'local_quercus_tasks');
 	}
 	$oci = oci_connect($database, $password, $host);
 
@@ -899,7 +899,7 @@ function get_new_modules(){
 		$message = "Error connecting to Quercus for updating local_quercus_modules oci_connect doesn't exist.. \r\n\n";
 		email_error($to, $subject, $message);
 		mtrace('Error connecting to Quercus - oci_connect doesn\'t exist.');
-		return;
+		throw new moodle_exception('ocierror', 'local_quercus_tasks');
 	}
 	$oci = oci_connect($database, $password, $host);
 
@@ -1073,7 +1073,7 @@ function get_new_courses(){
 		$message = "Error connecting to Quercus for updating local_quercus_courses oci_connect doesn't exist.. \r\n\n";
 		email_error($to, $subject, $message);
 		mtrace('Error connecting to Quercus - oci_connect doesn\'t exist');
-		return;
+		throw new moodle_exception('ocierror', 'local_quercus_tasks');
 	}
 	$oci = oci_connect($database, $password, $host);
 
