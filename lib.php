@@ -776,6 +776,14 @@ function staff_enrolments(){
 	$password = get_config('local_quercus_tasks', 'connectionpassword');
 	$database = get_config('local_quercus_tasks', 'connectiondatabase');
 	$table = get_config('local_quercus_tasks', 'enrolmentview');
+	if (!function_exists('oci_connect')) {
+		$to      =  get_config('local_quercus_tasks', 'emaillt');	
+		$subject = "Error connecting to Quercus for updating local_quercus_staff table, email sent to " . get_config('local_quercus_tasks', 'emaillt');
+		$message = "Error connecting to Quercus for updating local_quercus_staff oci_connect doesn't exist.. \r\n\n";
+		email_error($to, $subject, $message);
+		mtrace('Error connecting to Quercus - oci_connect doesn\'t exist.');
+		return;
+	}
 	$oci = oci_connect($database, $password, $host);
 
 	if ($oci) { //If there's a connection, get the data
@@ -885,6 +893,14 @@ function get_new_modules(){
 	$password = get_config('local_quercus_tasks', 'connectionpassword');
 	$database = get_config('local_quercus_tasks', 'connectiondatabase');
 	$table = get_config('local_quercus_tasks', 'modulesview');
+	if (!function_exists('oci_connect')) {
+		$to      =  get_config('local_quercus_tasks', 'emaillt');	
+		$subject = "Error connecting to Quercus for updating local_quercus_modules table, email sent to " . get_config('local_quercus_tasks', 'emaillt');
+		$message = "Error connecting to Quercus for updating local_quercus_modules oci_connect doesn't exist.. \r\n\n";
+		email_error($to, $subject, $message);
+		mtrace('Error connecting to Quercus - oci_connect doesn\'t exist.');
+		return;
+	}
 	$oci = oci_connect($database, $password, $host);
 
 	if ($oci) { //If there's a connection, get the data
@@ -1051,6 +1067,14 @@ function get_new_courses(){
 	$password = get_config('local_quercus_tasks', 'connectionpassword');
 	$database = get_config('local_quercus_tasks', 'connectiondatabase');
 	$table = get_config('local_quercus_tasks', 'coursesview');
+	if (!function_exists('oci_connect')) {
+		$to      =  get_config('local_quercus_tasks', 'emaillt');	
+		$subject = "Error connecting to Quercus for updating local_quercus_courses table, email sent to " . get_config('local_quercus_tasks', 'emaillt');
+		$message = "Error connecting to Quercus for updating local_quercus_courses oci_connect doesn't exist.. \r\n\n";
+		email_error($to, $subject, $message);
+		mtrace('Error connecting to Quercus - oci_connect doesn\'t exist');
+		return;
+	}
 	$oci = oci_connect($database, $password, $host);
 
 	if ($oci) { //If there's a connection, get the data
