@@ -28,7 +28,7 @@ if (!$conn) {
     throw new moodle_exception('connectiondatabaserror', 'local_quercus_tasks', '', null, $e['message']);
 }
 
-$stid = oci_parse($conn, 'select * from STAFF_ENROLMENTS OFFET 0 ROWS FETCH NEXT 10 ROWS ONLY');
+$stid = oci_parse($conn, 'select * from STAFF_ENROLMENTS OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY');
 oci_execute($stid);
 
 echo "<table border='1'>\n";
