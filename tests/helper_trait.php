@@ -118,7 +118,7 @@ trait local_quercus_tasks_helper_trait {
         $tiiform = new stdClass();
         $tiiform->modulename = 'assign';
         $tiiform->coursemodule = $cmid;
-        $tii = new plagiarism_plugin_turnitin();
+        $tii = new \plagiarism_plugin_turnitin();
         $defaults = $tii->get_settings();
         foreach ($defaults as $name => $value) {
             $tiiform->$name = $value;
