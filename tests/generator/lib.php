@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 class local_quercus_tasks_generator extends component_generator_base
 {
 
-    public int $assigncount = 0;
+    public $assigncount = 0;
     /**
      * Reset process.
      *
