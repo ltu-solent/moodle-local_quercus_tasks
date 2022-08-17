@@ -23,10 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-class local_quercus_tasks_generator extends component_generator_base
-{
+class local_quercus_tasks_generator extends component_generator_base {
 
     public $assigncount = 0;
     /**
@@ -79,7 +76,7 @@ class local_quercus_tasks_generator extends component_generator_base
         if (!isset($record['gradeMarkExempt'])) {
             $record['gradeMarkExempt'] = 'N';
         }
-        
+
         if (!isset($record['externalDate'])) {
             $record['externalDate'] = null;
         }
@@ -103,7 +100,7 @@ class local_quercus_tasks_generator extends component_generator_base
         $record = new stdClass();
         $weighting = (float)$quercusdata["weighting"] * 100;
         $record->sitting = $quercusdata["sitting"];
-		$record->sittingdescription = $quercusdata["sittingDescription"];
+        $record->sittingdescription = $quercusdata["sittingDescription"];
         $record->grademarkexempt = $quercusdata["gradeMarkExempt"];
 
         if (isset($quercusdata["externalDate"]) && $quercusdata["sittingDescription"] != 'FIRST_SITTING') {
@@ -111,23 +108,24 @@ class local_quercus_tasks_generator extends component_generator_base
         } else {
             $record->externaldate = null;
         }
-        if (isset($quercusdata["availableFrom"])){
+        if (isset($quercusdata["availableFrom"])) {
             $record->availablefrom = $quercusdata["availableFrom"];
         } else {
             $record->availablefrom = 0;
         }
 
-        if (isset($quercusdata["dueDate"])){
+        if (isset($quercusdata["dueDate"])) {
             $record->duedate = $quercusdata["dueDate"];
         } else {
             $record->duedate = 0;
         }
 
-        if ($record->sittingdescription == 'FIRST_SITTING'){
+        if ($record->sittingdescription == 'FIRST_SITTING') {
             $record->assessmentdescription = $quercusdata["assessmentDescription"] . ' ('. $weighting . '%)';
         } else {
             $append = ucfirst(strtolower(strtok($record->sittingdescription, '_')));
-            $record->assessmentdescription = $quercusdata["assessmentDescription"] . ' ('. $weighting . '%) - ' . $append . ' Attempt';
+            $record->assessmentdescription = $quercusdata["assessmentDescription"] . ' ('. $weighting . '%) - ' .
+                $append . ' Attempt';
         }
         $record->assessmentcode = $quercusdata["assessmentCode"];
         $record->assignmentidnumber = $quercusdata["academicYear"]  . '_' . $quercusdata["assessmentCode"];

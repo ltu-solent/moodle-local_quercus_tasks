@@ -1,4 +1,30 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Language file
+ *
+ * @package   local_quercus_tasks
+ * @author    Mark Sharp <mark.sharp@solent.ac.uk>
+ * @copyright 2022 Solent University {@link https://www.solent.ac.uk}
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+
 $string['assign_filterwarning'] = '<i class="fa fa-warning"></i> <strong>Warning:</strong> You are not displaying all users and will not be able to release your grades. {$a->msg}';
 $string['assign_formativeinfo'] = '<i class="fa fa-info-circle"></i> The marks for these assignments will not be uploaded to Quercus as this is not a Quercus Assignment.';
 $string['assign_resetprefs'] = ' <a href="{$a->url}">"Reset your table preferences"</a>.';

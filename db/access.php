@@ -17,18 +17,17 @@
 /**
  * Capability definitions for this module.
  *
- * @package   mod_assign
- * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
+ * @package   local_quercus_tasks
+ * @copyright 2022 Solent University {@link http://www.solent.ac.uk}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $capabilities = array(
-
     'local/quercus_tasks:releasegrades' => array(
-
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
-        )
+        'archetypes' => []
     )
 );

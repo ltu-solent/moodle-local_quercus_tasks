@@ -23,7 +23,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
 
 trait local_quercus_tasks_helper_trait {
 
@@ -36,7 +35,6 @@ trait local_quercus_tasks_helper_trait {
         $this->turnitin_defaults();
         $this->set_configs();
         $this->assign_config();
-        
     }
 
     /**
@@ -45,7 +43,6 @@ trait local_quercus_tasks_helper_trait {
      * @return void
      */
     public function set_configs() {
-        
         // These are non-default assignment settings that we have changed.
         set_config('allowsubmissionsfromdate', 0, 'assign');
         set_config('duedate', 185 * 3600, 'assign');
@@ -64,9 +61,14 @@ trait local_quercus_tasks_helper_trait {
         set_config('gradingdueinterval', 1, 'local_quercus_tasks');
 
         // Scales.
-        $grademarkexemptscale = $this->getDataGenerator()->create_scale(['name' => 'grademarkexemptscale', 'scale' => implode(',', range(0,100))]);
+        $grademarkexemptscale = $this->getDataGenerator()->create_scale([
+                'name' => 'grademarkexemptscale',
+                'scale' => implode(',', range(0, 100))
+            ]);
         set_config('grademarkexemptscale', $grademarkexemptscale->id, 'local_quercus_tasks');
-        $grademarkscale = $this->getDataGenerator()->create_scale(['name' => 'grademarkscale', 'scale' => 'N,S,F3,F2,F1,D3,D2,D1,C3,C2,C1,B3,B2,B1,A4,A3,A2,A1']);
+        $grademarkscale = $this->getDataGenerator()->create_scale([
+                'name' => 'grademarkscale',
+                'scale' => 'N,S,F3,F2,F1,D3,D2,D1,C3,C2,C1,B3,B2,B1,A4,A3,A2,A1']);
         set_config('grademarkscale', $grademarkscale->id, 'local_quercus_tasks');
 
         // Feedback settings.
@@ -79,31 +81,31 @@ trait local_quercus_tasks_helper_trait {
      * @return object
      */
     public function assign_config() {
-        $assign_config = new stdClass;
-		$assign_config->submissiondrafts = get_config('assign', 'submissiondrafts');
-		$assign_config->sendnotifications = get_config('assign', 'sendnotifications');
-		$assign_config->sendlatenotifications = get_config('assign', 'sendlatenotifications');
-		$assign_config->requiresubmissionstatement = get_config('assign', 'requiresubmissionstatement');
-		$assign_config->teamsubmission = get_config('assign', 'teamsubmission');
-		$assign_config->requireallteammemberssubmit = get_config('assign', 'requireallteammemberssubmit');
-		$assign_config->teamsubmissiongroupingid = get_config('assign', 'teamsubmissiongroupingid');
-		$assign_config->blindmarking = get_config('assign', 'blindmarking');
-		$assign_config->attemptreopenmethod = get_config('assign', 'attemptreopenmethod');
-		$assign_config->maxattempts = get_config('assign', 'maxattempts');
-		$assign_config->markingworkflow = get_config('assign', 'markingworkflow');
-		$assign_config->markingallocation = get_config('assign', 'markingallocation');
-		$assign_config->sendstudentnotifications = get_config('assign', 'sendstudentnotifications');
-		$assign_config->preventsubmissionnotingroup = get_config('assign', 'preventsubmissionnotingroup');
+        $assignconfig = new stdClass;
+        $assignconfig->submissiondrafts = get_config('assign', 'submissiondrafts');
+        $assignconfig->sendnotifications = get_config('assign', 'sendnotifications');
+        $assignconfig->sendlatenotifications = get_config('assign', 'sendlatenotifications');
+        $assignconfig->requiresubmissionstatement = get_config('assign', 'requiresubmissionstatement');
+        $assignconfig->teamsubmission = get_config('assign', 'teamsubmission');
+        $assignconfig->requireallteammemberssubmit = get_config('assign', 'requireallteammemberssubmit');
+        $assignconfig->teamsubmissiongroupingid = get_config('assign', 'teamsubmissiongroupingid');
+        $assignconfig->blindmarking = get_config('assign', 'blindmarking');
+        $assignconfig->attemptreopenmethod = get_config('assign', 'attemptreopenmethod');
+        $assignconfig->maxattempts = get_config('assign', 'maxattempts');
+        $assignconfig->markingworkflow = get_config('assign', 'markingworkflow');
+        $assignconfig->markingallocation = get_config('assign', 'markingallocation');
+        $assignconfig->sendstudentnotifications = get_config('assign', 'sendstudentnotifications');
+        $assignconfig->preventsubmissionnotingroup = get_config('assign', 'preventsubmissionnotingroup');
 
-		$assign_config->assignfeedback_comments_enabled = get_config('assignfeedback_comments', 'default');
-		$assign_config->assignfeedback_comments_commentinline = get_config('assignfeedback_comments', 'inline');
-		$assign_config->assignfeedback_doublemark_enabled = get_config('assignfeedback_doublemark', 'default');
-		$assign_config->assignfeedback_file_enabled = get_config('assignfeedback_file', 'default');
-		$assign_config->assignfeedback_misconduct_enabled = get_config('assignfeedback_misconduct', 'default');
-		$assign_config->assignfeedback_penalties_enabled = get_config('assignfeedback_penalties', 'default');
-		$assign_config->assignfeedback_sample_enabled = get_config('assignfeedback_sample', 'default');
-        
-        return $assign_config;
+        $assignconfig->assignfeedback_comments_enabled = get_config('assignfeedback_comments', 'default');
+        $assignconfig->assignfeedback_comments_commentinline = get_config('assignfeedback_comments', 'inline');
+        $assignconfig->assignfeedback_doublemark_enabled = get_config('assignfeedback_doublemark', 'default');
+        $assignconfig->assignfeedback_file_enabled = get_config('assignfeedback_file', 'default');
+        $assignconfig->assignfeedback_misconduct_enabled = get_config('assignfeedback_misconduct', 'default');
+        $assignconfig->assignfeedback_penalties_enabled = get_config('assignfeedback_penalties', 'default');
+        $assignconfig->assignfeedback_sample_enabled = get_config('assignfeedback_sample', 'default');
+
+        return $assignconfig;
     }
 
     /**
@@ -153,7 +155,7 @@ trait local_quercus_tasks_helper_trait {
             'use_turnitin_lock' => 1,
             'plagiarism_show_student_report' => 1,
             'plagiarism_draft_submit' => 0,
-            'plagiarism_allow_non_or_submissions' => 0, 
+            'plagiarism_allow_non_or_submissions' => 0,
             'plagiarism_submitpapersto' => 0,
             'plagiarism_compare_student_papers' => 1,
             'plagiarism_compare_internet' => 1,

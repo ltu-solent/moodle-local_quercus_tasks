@@ -54,7 +54,7 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
         $assigncm = insert_assign($course, $quercusdata, $this->assign_config());
         $this->assertIsObject($assigncm);
         $this->turnitin_config($assigncm->id, $course->id);
-        
+
         $useturnitin = $DB->get_field('plagiarism_turnitin_config', 'value', ['cm' => $assigncm->id, 'name' => 'use_turnitin']);
         $this->assertEquals(1, $useturnitin);
         $tiicourse = $DB->get_record('plagiarism_turnitin_courses', ['courseid' => $course->id]);
@@ -207,10 +207,10 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
         [$eday, $emonth, $eyear] = explode('-', $old['enddate']);
         $stime = new DateTime();
         $stime->setDate($syear, $smonth, $sday);
-        $stime->setTime(1,0,0);
+        $stime->setTime(1, 0, 0);
         $etime = new DateTime();
         $etime->setDate($eyear, $emonth, $eday);
-        $etime->setTime(0,0,0);
+        $etime->setTime(0, 0, 0);
         // Don't need to worry about templates.
         // No need to use create_quercus_module as this muddles the output.
         $oldcourse = $this->getDataGenerator()->create_course([
@@ -237,10 +237,10 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
         [$eday, $emonth, $eyear] = explode('-', $new['enddate']);
         $stime = new DateTime();
         $stime->setDate($syear, $smonth, $sday);
-        $stime->setTime(1,0,0);
+        $stime->setTime(1, 0, 0);
         $etime = new DateTime();
         $etime->setDate($eyear, $emonth, $eday);
-        $etime->setTime(0,0,0);
+        $etime->setTime(0, 0, 0);
 
         $this->expectOutputString($expectedoutput);
         $this->assertSame($newmodule->summary, $course->summary);

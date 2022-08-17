@@ -43,7 +43,7 @@ class api {
             $assignsql = ' AND gi.iteminstance = :assignid ';
             $params['assignid'] = $assignid;
         }
-        
+
         $sql = "SELECT gi.*
         FROM {grade_items} gi
         JOIN {course_modules} cm ON cm.instance = gi.iteminstance
