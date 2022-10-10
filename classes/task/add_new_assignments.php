@@ -25,12 +25,25 @@
 
 namespace local_quercus_tasks\task;
 
+/**
+ * Add new assignment
+ */
 class add_new_assignments extends \core\task\scheduled_task {
+    /**
+     * {@inheritDoc}
+     *
+     * @return string
+     */
     public function get_name() {
         // Shown in admin screens.
         return get_string('addnewassign', 'local_quercus_tasks');
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
+     */
     public function execute() {
         global $CFG;
         require_once($CFG->dirroot . '/local/quercus_tasks/lib.php');

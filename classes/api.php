@@ -25,6 +25,9 @@
 
 namespace local_quercus_tasks;
 
+/**
+ * General helper api
+ */
 class api {
 
     /**

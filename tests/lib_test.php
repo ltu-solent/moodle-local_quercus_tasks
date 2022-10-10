@@ -23,20 +23,31 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace local_quercus_tasks;
+
+use advanced_testcase;
+use assign;
+use DateTime;
+
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once(__DIR__ . '/helper_trait.php');
 require_once($CFG->dirroot . '/local/quercus_tasks/lib.php');
 
-class local_quercus_tasks_lib_testcase extends advanced_testcase {
+/**
+ * Test lib file
+ */
+class lib_test extends advanced_testcase {
 
-    use local_quercus_tasks_helper_trait;
+    use helper_trait;
 
-    public function check_if_exam() {
-
-    }
-
+    /**
+     * Test inserting an assignment
+     *
+     * @covers \insert_assign
+     * @return void
+     */
     public function test_insert_assign() {
         global $DB;
         $this->resetAfterTest();
@@ -72,9 +83,9 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
      * @dataProvider new_modules_provider
      * @param object $row
      * @param int $acadyear
-     * @param object $moduletemplate
      * @param bool $status
      * @param string $expectedoutput
+     * @covers \create_new_modules
      *
      * @return void
      */
@@ -115,6 +126,11 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
         $this->expectOutputString($expectedoutput);
     }
 
+    /**
+     * Provider for create_new_modules
+     *
+     * @return array
+     */
     public function new_modules_provider() {
         return [
             'Success' => [
@@ -188,6 +204,7 @@ class local_quercus_tasks_lib_testcase extends advanced_testcase {
      * @param array $new
      * @param string $expectedoutput
      * @return void
+     * @covers \update_module_dates
      */
     public function test_update_module_dates($old, $new, $expectedoutput) {
         global $DB, $USER;

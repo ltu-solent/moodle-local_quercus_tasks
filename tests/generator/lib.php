@@ -23,8 +23,16 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+ /**
+  * Generator class
+  */
 class local_quercus_tasks_generator extends component_generator_base {
 
+    /**
+     * How many assignments have been created so far
+     *
+     * @var integer
+     */
     public $assigncount = 0;
     /**
      * Reset process.
@@ -37,6 +45,12 @@ class local_quercus_tasks_generator extends component_generator_base {
         $this->assigncount = 0;
     }
 
+    /**
+     * Prepares a local_quercus data array
+     *
+     * @param array $record
+     * @return array
+     */
     public function create_quercusdata_item(array $record) {
         $this->assigncount++;
         $i = $this->assigncount;

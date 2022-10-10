@@ -22,12 +22,19 @@
  * @copyright 2021 Solent University {@link https://www.solent.ac.uk}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace local_quercus_tasks;
 
+use stdClass;
 
-trait local_quercus_tasks_helper_trait {
+trait helper_trait {
 
     public $faketiicomms;
 
+    /**
+     * Sets various settings required for mininum function
+     *
+     * @return void
+     */
     public function bitnbobs() {
         set_config('enableplagiarism', 1);
         set_config('enabled', 1, 'plagiarism_turnitin');
@@ -81,7 +88,7 @@ trait local_quercus_tasks_helper_trait {
      * @return object
      */
     public function assign_config() {
-        $assignconfig = new stdClass;
+        $assignconfig = new stdClass();
         $assignconfig->submissiondrafts = get_config('assign', 'submissiondrafts');
         $assignconfig->sendnotifications = get_config('assign', 'sendnotifications');
         $assignconfig->sendlatenotifications = get_config('assign', 'sendlatenotifications');
@@ -113,6 +120,7 @@ trait local_quercus_tasks_helper_trait {
      * This should be part of our core plugin, but trying here first.
      *
      * @param int $cmid
+     * @param int $courseid
      * @return void
      */
     public function turnitin_config($cmid, $courseid) {

@@ -25,12 +25,25 @@
 
 namespace local_quercus_tasks\task;
 
+/**
+ * Get new modules
+ */
 class get_new_modules extends \core\task\scheduled_task {
+    /**
+     * {@inheritDoc}
+     *
+     * @return string
+     */
     public function get_name() {
         // Shown in admin screens.
         return get_string('getnewmodules', 'local_quercus_tasks');
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return void
+     */
     public function execute() {
         global $CFG;
         require_once($CFG->dirroot . '/local/quercus_tasks/lib.php');
