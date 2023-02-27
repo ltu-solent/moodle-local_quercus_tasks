@@ -89,8 +89,8 @@ if (count($errors) == 0) {
 if (count($errors) > 0) {
     $notify = new \core\output\notification(html_writer::alist($errors), \core\output\notification::NOTIFY_ERROR);
     echo $OUTPUT->render($notify);
-    echo $html;
 }
+echo $html;
 
 $errors = [];
 
