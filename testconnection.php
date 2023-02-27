@@ -23,6 +23,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\output\notification;
+
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
@@ -35,42 +37,61 @@ $PAGE->set_url('/local/quercus_tasks/testconnection.php');
 echo $OUTPUT->header();
 
 $settings = get_config('local_quercus_tasks');
+
+echo html_writer::tag('h2', get_string('testconnection', 'local_quercus_tasks'));
+$errors = [];
+echo html_writer::tag('h3', get_string(['ociconnectiontests', 'local_quercus_tasks']));
+
 if (!$settings->connectionhost || !$settings->connectionpassword || !$settings->connectiondatabase) {
-    throw new moodle_exception('connectionsettingserror', 'local_quercus_tasks');
+    $errors['ociconnection'] = get_string('connectionsettingserror', 'local_quercus_tasks');
 }
 
 if (!function_exists('oci_connect')) {
-    throw new moodle_exception('ocierror', 'local_quercus_tasks');
+    $errors['oci_connect'] = get_string('ocierror', 'local_quercus_tasks');
 }
 
-// Connects to the XE service (i.e. database) on the "localhost" machine.
-$conn = oci_connect($settings->connectiondatabase, $settings->connectionpassword, $settings->connectionhost);
+if (count($errors) == 0) {
+    // Connects to the XE service (i.e. database) on the "localhost" machine.
+    $conn = oci_connect($settings->connectiondatabase, $settings->connectionpassword, $settings->connectionhost);
 
-if (!$conn) {
-    $e = oci_error();
-    throw new moodle_exception('connectiondatabaserror', 'local_quercus_tasks', '', null, $e['message']);
-}
+    if (!$conn) {
+        $e = oci_error();
+        $errors['ocidb'] = get_string('connectiondatabaserror', 'local_quercus_tasks', $e['message']);
+    } else {
+        $stid = oci_parse($conn, 'select * from STAFF_ENROLMENTS OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY');
+        oci_execute($stid);
+        $table = new html_table();
+        $table->attributes = ['border' => '1'];
+        $rows = [];
 
-$stid = oci_parse($conn, 'select * from STAFF_ENROLMENTS OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY');
-oci_execute($stid);
+        $columnscount = oci_num_fields($stid);
+        $cells = [];
+        for ($i = 1; $i <= $columnscount; $i++) {
+            $colname = oci_field_name($stid, $i);
+            $cell = new html_table_cell(htmlspecialchars($colname, ENT_QUOTES | ENT_SUBSTITUTE));
+            $cell->header = true;
+            $cells[] = $cell;
+        }
+        $rows[] = new html_table_row($cells);
 
-echo "<table border='1'>\n";
-
-$columnscount = oci_num_fields($stid);
-echo "<tr>";
-for ($i = 1; $i <= $columnscount; $i++) {
-    $colname = oci_field_name($stid, $i);
-    echo "  <th>".htmlspecialchars($colname, ENT_QUOTES | ENT_SUBSTITUTE)."</th>";
-}
-echo "</tr>";
-
-while ($row = oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS)) {
-    echo "<tr>\n";
-    foreach ($row as $item) {
-        echo " <td>" . ($item !== null ? htmlentities($item, ENT_QUOTES) : "&nbsp;") . "</td>\n";
+        while ($items = oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS)) {
+            $cells = [];
+            foreach ($items as $item) {
+                $text = ($item !== null ? htmlentities($item, ENT_QUOTES) : "&nbsp;");
+                $cell = new html_table_cell($text);
+                $cells[] = $cell;
+            }
+            $rows[] = new html_table_row($cells);
+        }
+        $table->data = $rows;
     }
-    echo "</tr>\n";
 }
-echo "</table>\n";
+
+if (count($errors) > 0) {
+    $notify = new \core\output\notification(html_writer::alist($errors), \core\output\notification::NOTIFY_ERROR);
+    echo $OUTPUT->render($notify);
+}
+
+
 
 echo $OUTPUT->footer();

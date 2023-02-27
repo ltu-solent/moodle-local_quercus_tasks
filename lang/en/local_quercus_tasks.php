@@ -47,7 +47,7 @@ $string['createmodulessettings'] = 'Create new modules settings';
 $string['cutoffinterval'] = 'Cut off date interval in weeks';
 $string['cutoffintervalsecondplus'] = 'Cut off date interval in weeks for second/third+ sittings';
 
-$string['connectiondatabaserror'] = 'There was a problem connecting to the database';
+$string['connectiondatabaserror'] = 'There was a problem connecting to the database: {$a}';
 $string['datafile'] = 'Assignment XML data file path';
 $string['dataviews'] = 'Quercus data views';
 $string['deletecategories'] = 'Delete categories';
@@ -76,6 +76,7 @@ $string['nomodules'] = 'No new modules';
 $string['nopatherror'] = 'Cannot resolve category path ';
 
 $string['ocierror'] = 'OCI is not installed';
+$string['ociconnectiontests'] = 'OCI connection tests';
 
 $string['quercus_tasks:releasegrades'] = 'Release grades to Quercus';
 $string['releaseroles'] = 'Comma separated list of role IDs that can release grades (no spaces)';
