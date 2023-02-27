@@ -49,7 +49,7 @@ if (!$settings->connectionhost || !$settings->connectionpassword || !$settings->
 if (!function_exists('oci_connect')) {
     $errors['oci_connect'] = get_string('ocierror', 'local_quercus_tasks');
 }
-
+$html = '';
 if (count($errors) == 0) {
     // Connects to the XE service (i.e. database) on the "localhost" machine.
     $conn = oci_connect($settings->connectiondatabase, $settings->connectionpassword, $settings->connectionhost);
@@ -84,14 +84,14 @@ if (count($errors) == 0) {
             $rows[] = new html_table_row($cells);
         }
         $table->data = $rows;
+        $html = html_writer::table($table);
     }
 }
 
 if (count($errors) > 0) {
     $notify = new \core\output\notification(html_writer::alist($errors), \core\output\notification::NOTIFY_ERROR);
     echo $OUTPUT->render($notify);
+    echo $html;
 }
-
-
 
 echo $OUTPUT->footer();
