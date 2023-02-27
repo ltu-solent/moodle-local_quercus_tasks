@@ -38,7 +38,7 @@ $settings = get_config('local_quercus_tasks');
 
 echo html_writer::tag('h2', get_string('testconnection', 'local_quercus_tasks'));
 $errors = [];
-echo html_writer::tag('h3', get_string(['ociconnectiontests', 'local_quercus_tasks']));
+echo html_writer::tag('h3', get_string('ociconnectiontests', 'local_quercus_tasks'));
 
 if (!$settings->connectionhost || !$settings->connectionpassword || !$settings->connectiondatabase) {
     $errors['ociconnection'] = get_string('connectionsettingserror', 'local_quercus_tasks');
