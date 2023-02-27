@@ -118,16 +118,16 @@ function qt_test_export_grades($dataready) {
     $result = curl_exec($ch);
     $errormsg = curl_error($ch);
     if ($result === false) {
-        mtrace($errormsg);
+        echo $errormsg;
     }
     $response = json_decode($result, true);
     curl_close($ch);
 
     if (isset($response)) {
 
-        return $response;
+        echo $response;
     } else {
-        mtrace($errormsg);
+        echo $errormsg;
         return null;
     }
 }
