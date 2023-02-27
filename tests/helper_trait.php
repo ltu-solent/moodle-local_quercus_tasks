@@ -24,6 +24,9 @@
  */
 namespace local_quercus_tasks;
 
+defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot . '/plagiarism/turnitin/lib.php');
+
 use stdClass;
 
 trait helper_trait {
