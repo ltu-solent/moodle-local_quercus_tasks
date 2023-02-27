@@ -23,8 +23,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use core\output\notification;
-
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
@@ -92,6 +90,75 @@ if (count($errors) > 0) {
     $notify = new \core\output\notification(html_writer::alist($errors), \core\output\notification::NOTIFY_ERROR);
     echo $OUTPUT->render($notify);
     echo $html;
+}
+
+$errors = [];
+
+function qt_test_export_grades($dataready) {
+    // Send data.
+    $ch = curl_init();
+    $url = get_config('local_quercus_tasks', 'srsgws');
+
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($dataready))
+    );
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $dataready);
+    curl_setopt($ch, CURLOPT_FAILONERROR, true);
+
+// @codingStandardsIgnoreStart
+// Do not use on production -----------------------
+    //curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    //curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+// ------------------------------------------------
+// @codingStandardsIgnoreEnd
+    $result = curl_exec($ch);
+    $errormsg = curl_error($ch);
+    if ($result === false) {
+        mtrace($errormsg);
+    }
+    $response = json_decode($result, true);
+    curl_close($ch);
+
+    if (isset($response)) {
+
+        return $response;
+    } else {
+        mtrace($errormsg);
+        return null;
+    }
+}
+
+function qt_test_get_retrylist() {
+    $list = [
+        (object)[
+            'id' => 99999,
+            'moodlestudentid' => 99999,
+            'studentid' => 99999,
+            'name' => 'John',
+            'surname' => 'McJohn',
+            'modulecode' => 'ABC101',
+            'moduleinstanceid' => 'ABC101_123456789',
+            'moduledescription' => 'Making a test module',
+            'assessmentsittingcode' => '99000099',
+            'academicsession' => '2022',
+            'assessmentdescription' => 'FIRST_SITTING',
+            'assessmentcode' => 'PROJ1',
+            'assessmentresult' => 68,
+            'unitleadername' => 'LT',
+            'unitleadersurname' => 'Systems',
+            'unitleaderemail' => 'lt.systems@solent.ac.uk'
+        ]
+    ];
+    return $list;
+}
+
+$retrylist = qt_test_get_retrylist();
+foreach ($retrylist as $retry) {
+    qt_test_export_grades(json_encode($retry));
 }
 
 echo $OUTPUT->footer();
