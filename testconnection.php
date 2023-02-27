@@ -98,7 +98,10 @@ function qt_test_export_grades($dataready) {
     // Send data.
     $ch = curl_init();
     $url = get_config('local_quercus_tasks', 'srsgws');
-
+    if (empty($url)) {
+        echo "No endpoint set";
+        return;
+    }
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
@@ -155,6 +158,8 @@ function qt_test_get_retrylist() {
     ];
     return $list;
 }
+
+echo html_writer::tag('h3', 'Marks upload test');
 
 $retrylist = qt_test_get_retrylist();
 foreach ($retrylist as $retry) {
