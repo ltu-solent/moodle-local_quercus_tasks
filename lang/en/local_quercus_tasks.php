@@ -72,6 +72,7 @@ $string['moduletemplate'] = 'Module template id';
 $string['modulesview'] = 'Modules view name';
 $string['notcreatederror'] = '{$a->type} not created ';
 $string['nodelete'] = 'Nothing to delete';
+$string['noendpointset'] = 'No endpoint set';
 $string['nomodules'] = 'No new modules';
 $string['nopatherror'] = 'Cannot resolve category path ';
 

@@ -92,8 +92,6 @@ if (count($errors) > 0) {
 }
 echo $html;
 
-$errors = [];
-
 function qt_test_export_grades($dataready) {
     // Send data.
     $ch = curl_init();
@@ -161,9 +159,20 @@ function qt_test_get_retrylist() {
 
 echo html_writer::tag('h3', 'Marks upload test');
 
-$retrylist = qt_test_get_retrylist();
-foreach ($retrylist as $retry) {
-    qt_test_export_grades(json_encode($retry));
+$errors = [];
+
+if (!isset($settings->srsgws) || empty($settings->srsgws)) {
+    $errors['srsgws'] = get_string('noendpointset', 'local_quercus_tasks');
+}
+
+if (count($errors) > 0) {
+    $notify = new \core\output\notification(html_writer::alist($errors), \core\output\notification::NOTIFY_ERROR);
+    echo $OUTPUT->render($notify);
+} else {
+    $retrylist = qt_test_get_retrylist();
+    foreach ($retrylist as $retry) {
+        qt_test_export_grades(json_encode($retry));
+    }
 }
 
 echo $OUTPUT->footer();
