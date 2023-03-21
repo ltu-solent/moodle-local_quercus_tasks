@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2021020404;
+$plugin->version  = 2021020405;
 $plugin->requires = 2015111603;
-$plugin->release = 'v3.9.3';
+$plugin->release = 'v3.9.5';
 $plugin->component = 'local_quercus_tasks';
