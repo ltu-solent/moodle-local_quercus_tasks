@@ -599,6 +599,11 @@ function get_new_grades($lastruntime) {
         foreach ($assignids as $v) {
             // Get course module.
             $cm = get_coursemodule_from_instance('assign', $v->iteminstance, 0);
+            // If this is a SITS assignment, this process will be handled by local_solsits.
+            $issitsassignment = component_class_callback('\local_solsits\helper', 'is_sits_assignment', [$cm->id], false);
+            if ($issitsassignment) {
+                continue;
+            }
             // Get course.
             $course = get_course($cm->course);
             // Get sittingdescription.
