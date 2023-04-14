@@ -37,6 +37,7 @@ require_once($CFG->dirroot . '/local/quercus_tasks/lib.php');
 
 /**
  * Test lib file
+ * @group sol
  */
 class lib_test extends advanced_testcase {
 
