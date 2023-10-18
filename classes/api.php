@@ -64,13 +64,20 @@ class api {
      */
     public static function get_quercus_assignments($courseid) {
         global $DB;
-        $sql = "SELECT a.*, cm.idnumber, qs.sitting, qs.sitting_desc, qs.externaldate
+        $sql = "SELECT a.*, cm.idnumber, cm.id cmid, qs.sitting, qs.sitting_desc, qs.externaldate
         FROM {assign} a
         JOIN {course_modules} cm ON cm.instance = a.id
         JOIN {modules} m ON m.id = cm.module AND m.name = 'assign'
         LEFT JOIN {local_quercus_tasks_sittings} qs ON qs.assign = a.id
         WHERE a.course = :courseid AND cm.idnumber <> ''";
-        return $DB->get_records_sql($sql, ['courseid' => $courseid]);
+
+        $assignments = $DB->get_records_sql($sql, ['courseid' => $courseid]);
+        $assignments = array_filter($assignments, function($assignment) {
+            global $DB;
+            // Only return records that are NOT in the solsits_assign table.
+            return !$DB->record_exists('local_solsits_assign', ['cmid' => $assignment->cmid]);
+        });
+        return $assignments;
     }
 
     /**
@@ -81,13 +88,18 @@ class api {
      */
     public static function get_quercus_assignment($assignid) {
         global $DB;
-        $sql = "SELECT a.*, cm.idnumber, qs.sitting, qs.sitting_desc, qs.externaldate
+        $sql = "SELECT a.*, cm.idnumber, cm.id cmid, qs.sitting, qs.sitting_desc, qs.externaldate
         FROM {assign} a
         JOIN {course_modules} cm ON cm.instance = a.id
         JOIN {modules} m ON m.id = cm.module AND m.name = 'assign'
         LEFT JOIN {local_quercus_tasks_sittings} qs ON qs.assign = a.id
         WHERE a.id = :assignid AND cm.idnumber <> ''";
-        return $DB->get_record_sql($sql, ['assignid' => $assignid], MUST_EXIST);
+        $assignment = $DB->get_record_sql($sql, ['assignid' => $assignid], MUST_EXIST);
+        if ($DB->record_exists('local_solsits_assign', ['cmid' => $assignment->cmid])) {
+            // This is a SITS assignment, don't return it.
+            return false;
+        }
+        return $assignment;
     }
 
     /**
@@ -106,4 +118,3 @@ class api {
         return $scale;
     }
 }
-

@@ -28,6 +28,7 @@ namespace local_quercus_tasks;
 use advanced_testcase;
 use assign;
 use DateTime;
+use local_quercus_tasks_generator;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -57,6 +58,7 @@ class lib_test extends advanced_testcase {
         $course = $this->getDataGenerator()->create_course([
             'idnumber' => 'ABC101_123456789'
         ]);
+        /** @var local_quercus_tasks_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('local_quercus_tasks');
         $quercusdataitem = $generator->create_quercusdata_item([
             'unitInstance' => 'ABC101_123456789',
