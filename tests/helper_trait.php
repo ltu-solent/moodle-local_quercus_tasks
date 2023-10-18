@@ -25,7 +25,6 @@
 namespace local_quercus_tasks;
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot . '/plagiarism/turnitin/lib.php');
 
 use stdClass;
 
@@ -39,10 +38,12 @@ trait helper_trait {
      * @return void
      */
     public function bitnbobs() {
-        set_config('enableplagiarism', 1);
-        set_config('enabled', 1, 'plagiarism_turnitin');
-        set_config('plagiarism_turnitin_mod_assign', 1, 'plagiarism_turnitin');
-        $this->turnitin_defaults();
+        if (class_exists('plagiarism_plugin_turnitin')) {
+            set_config('enableplagiarism', 1);
+            set_config('enabled', 1, 'plagiarism_turnitin');
+            set_config('plagiarism_turnitin_mod_assign', 1, 'plagiarism_turnitin');
+            $this->turnitin_defaults();
+        }
         $this->set_configs();
         $this->assign_config();
     }
