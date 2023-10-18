@@ -35,7 +35,7 @@ jobs:
             database: 'mariadb'
           - php: '7.4'
             moodle-branch: 'SU_401_DEV'
-            database: 'pgsql'
+            database: 'mariadb'
 
     steps:
       - name: Check out repository code
@@ -62,6 +62,7 @@ jobs:
 
       - name: Install moodle-plugin-ci
         run: |
+          moodle-plugin-ci add-plugin --branch main ltu-solent/moodle-assign_feedback_doublemark
           moodle-plugin-ci add-plugin --branch main ltu-solent/moodle-assign_feedback_misconduct
           moodle-plugin-ci add-plugin --branch MOODLE_400_DEV ltu-solent/moodle-theme_solent
           moodle-plugin-ci add-plugin --branch SU_master ltu-solent/moodle-format_onetopic
