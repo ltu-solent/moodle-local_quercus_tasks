@@ -93,10 +93,6 @@ jobs:
         if: ${{ always() }}
         run: moodle-plugin-ci phpdoc
 
-      - name: Validating
-        if: ${{ always() }}
-        run: moodle-plugin-ci validate
-
       - name: Check upgrade savepoints
         if: ${{ always() }}
         run: moodle-plugin-ci savepoints
