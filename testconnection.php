@@ -92,6 +92,12 @@ if (count($errors) > 0) {
 }
 echo $html;
 
+/**
+ * Test export grades
+ *
+ * @param array $dataready
+ * @return mixed
+ */
 function qt_test_export_grades($dataready) {
     // Send data.
     $ch = curl_init();
@@ -102,9 +108,10 @@ function qt_test_export_grades($dataready) {
     }
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
-        'Content-Length: ' . strlen($dataready))
+        'Content-Length: ' . strlen($dataready),
+        ]
     );
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
     curl_setopt($ch, CURLOPT_POSTFIELDS, $dataready);
@@ -133,6 +140,11 @@ function qt_test_export_grades($dataready) {
     }
 }
 
+/**
+ * Dummy retry list for testing
+ *
+ * @return array
+ */
 function qt_test_get_retrylist() {
     $list = [
         (object)[
@@ -151,8 +163,8 @@ function qt_test_get_retrylist() {
             'assessmentresult' => 68,
             'unitleadername' => 'LT',
             'unitleadersurname' => 'Systems',
-            'unitleaderemail' => 'lt.systems@solent.ac.uk'
-        ]
+            'unitleaderemail' => 'lt.systems@solent.ac.uk',
+        ],
     ];
     return $list;
 }

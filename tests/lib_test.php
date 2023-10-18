@@ -56,13 +56,13 @@ class lib_test extends advanced_testcase {
         $this->bitnbobs();
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course([
-            'idnumber' => 'ABC101_123456789'
+            'idnumber' => 'ABC101_123456789',
         ]);
         /** @var local_quercus_tasks_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('local_quercus_tasks');
         $quercusdataitem = $generator->create_quercusdata_item([
             'unitInstance' => 'ABC101_123456789',
-            'module' => 'ABC101'
+            'module' => 'ABC101',
         ]);
         $quercusdata = $generator->preprocess_quercusdata($quercusdataitem);
         $assigncm = insert_assign($course, $quercusdata, $this->assign_config());
@@ -103,7 +103,7 @@ class lib_test extends advanced_testcase {
         // Add an activity to the template.
         $this->getDataGenerator()->create_module('label', [
             'course' => $template->id,
-            'intro' => 'Label from Template.'
+            'intro' => 'Label from Template.',
         ]);
         // Create a quercus module - for testing purposes we don't get it directly from Quercus.
         $generator = $this->getDataGenerator()->get_plugin_generator('local_quercus_tasks');
@@ -134,7 +134,7 @@ class lib_test extends advanced_testcase {
      *
      * @return array
      */
-    public function new_modules_provider() {
+    public static function new_modules_provider(): array {
         return [
             'Success' => [
                 [
@@ -145,11 +145,11 @@ class lib_test extends advanced_testcase {
                     'category_path' => 'Faculty1',
                     'idnumber' => random_string(6) . '_' . random_int(1000000, 9999999),
                     'startdate' => '09-09-2021',
-                    'enddate' => '31-12-2021'
+                    'enddate' => '31-12-2021',
                 ],
                 '2021',
                 true,
-                "Module1 created.\n"
+                "Module1 created.\n",
             ],
             'Bad dates' => [
                 [
@@ -160,11 +160,11 @@ class lib_test extends advanced_testcase {
                     'category_path' => 'Faculty1',
                     'idnumber' => random_string(6) . '_' . random_int(1000000, 9999999),
                     'startdate' => '09-12-2021',
-                    'enddate' => '25-09-2021'
+                    'enddate' => '25-09-2021',
                 ],
                 '2021',
                 false,
-                "Error: Module1 is scheduled to end (25-09-2021) before it began (09-12-2021).\n"
+                "Error: Module1 is scheduled to end (25-09-2021) before it began (09-12-2021).\n",
             ],
             'Not current year' => [
                 [
@@ -175,11 +175,11 @@ class lib_test extends advanced_testcase {
                     'category_path' => 'Faculty1',
                     'idnumber' => random_string(6) . '_' . random_int(1000000, 9999999),
                     'startdate' => '09-09-2022',
-                    'enddate' => '31-12-2022'
+                    'enddate' => '31-12-2022',
                 ],
                 '2021',
                 false,
-                "No new modules\n"
+                "No new modules\n",
             ],
             'Faculty does not exist' => [
                 [
@@ -190,11 +190,11 @@ class lib_test extends advanced_testcase {
                     'category_path' => 'Faculty2',
                     'idnumber' => random_string(6) . '_' . random_int(1000000, 9999999),
                     'startdate' => '09-09-2021',
-                    'enddate' => '31-12-2021'
+                    'enddate' => '31-12-2021',
                 ],
                 '2021',
                 false,
-                "Cannot resolve category path Faculty2\n"
+                "Cannot resolve category path Faculty2\n",
             ],
         ];
     }
@@ -240,7 +240,7 @@ class lib_test extends advanced_testcase {
             'category' => $category->id,
             'idnumber' => $old['idnumber'],
             'startdate' => $stime->getTimestamp(),
-            'enddate' => $etime->getTimestamp()
+            'enddate' => $etime->getTimestamp(),
         ]);
 
         $generator = $this->getDataGenerator()->get_plugin_generator('local_quercus_tasks');
@@ -273,7 +273,7 @@ class lib_test extends advanced_testcase {
      *
      * @return array
      */
-    public function update_module_dates_provider() {
+    public static function update_module_dates_provider(): array {
         $idnumber = random_string(6) . '_' . random_int(1000000, 9999999);
         return [
             'New start date' => [
@@ -285,7 +285,7 @@ class lib_test extends advanced_testcase {
                     'category_path' => 'Faculty1',
                     'idnumber' => $idnumber,
                     'startdate' => '09-09-2021',
-                    'enddate' => '31-12-2021'
+                    'enddate' => '31-12-2021',
                 ],
                 [
                     'acadyear' => '2021',
@@ -295,9 +295,9 @@ class lib_test extends advanced_testcase {
                     'category_path' => 'Faculty1',
                     'idnumber' => $idnumber,
                     'startdate' => '01-09-2021',
-                    'enddate' => '31-12-2021'
+                    'enddate' => '31-12-2021',
                 ],
-                "Module1 - Start date: 09-09-2021 -> 01/09/2021 End date: 31-12-2021 -> 31/12/2021\n"
+                "Module1 - Start date: 09-09-2021 -> 01/09/2021 End date: 31-12-2021 -> 31/12/2021\n",
             ],
             'New end date' => [
                 [
@@ -308,7 +308,7 @@ class lib_test extends advanced_testcase {
                     'category_path' => 'Faculty1',
                     'idnumber' => $idnumber,
                     'startdate' => '01-09-2021',
-                    'enddate' => '09-12-2021'
+                    'enddate' => '09-12-2021',
                 ],
                 [
                     'acadyear' => '2021',
@@ -318,9 +318,9 @@ class lib_test extends advanced_testcase {
                     'category_path' => 'Faculty1',
                     'idnumber' => $idnumber,
                     'startdate' => '01-09-2021',
-                    'enddate' => '31-12-2021'
+                    'enddate' => '31-12-2021',
                 ],
-                "Module1 - Start date: 01-09-2021 -> 01/09/2021 End date: 09-12-2021 -> 31/12/2021\n"
+                "Module1 - Start date: 01-09-2021 -> 01/09/2021 End date: 09-12-2021 -> 31/12/2021\n",
             ],
             'New start and end date' => [
                 [
@@ -331,7 +331,7 @@ class lib_test extends advanced_testcase {
                     'category_path' => 'Faculty1',
                     'idnumber' => $idnumber,
                     'startdate' => '09-09-2021',
-                    'enddate' => '09-12-2021'
+                    'enddate' => '09-12-2021',
                 ],
                 [
                     'acadyear' => '2021',
@@ -341,9 +341,9 @@ class lib_test extends advanced_testcase {
                     'category_path' => 'Faculty1',
                     'idnumber' => $idnumber,
                     'startdate' => '01-09-2021',
-                    'enddate' => '31-12-2021'
+                    'enddate' => '31-12-2021',
                 ],
-                "Module1 - Start date: 09-09-2021 -> 01/09/2021 End date: 09-12-2021 -> 31/12/2021\n"
+                "Module1 - Start date: 09-09-2021 -> 01/09/2021 End date: 09-12-2021 -> 31/12/2021\n",
             ],
             'No change' => [
                 [
@@ -354,7 +354,7 @@ class lib_test extends advanced_testcase {
                     'category_path' => 'Faculty1',
                     'idnumber' => $idnumber,
                     'startdate' => '01-09-2021',
-                    'enddate' => '31-12-2021'
+                    'enddate' => '31-12-2021',
                 ],
                 [
                     'acadyear' => '2021',
@@ -364,10 +364,10 @@ class lib_test extends advanced_testcase {
                     'category_path' => 'Faculty1',
                     'idnumber' => $idnumber,
                     'startdate' => '01-09-2021',
-                    'enddate' => '31-12-2021'
+                    'enddate' => '31-12-2021',
                 ],
-                "No dates need updating.\n"
-            ]
+                "No dates need updating.\n",
+            ],
         ];
     }
 }

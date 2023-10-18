@@ -81,7 +81,7 @@ function xmldb_local_quercus_tasks_upgrade($oldversion) {
         $dataobject[] = [
             'role' => 'courseleader',
             'useridnumber' => 000000,
-            'courseidnumber' => 'AAAAAA'
+            'courseidnumber' => 'AAAAAA',
         ];
 
             $dataobject = new stdClass();

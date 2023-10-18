@@ -24,8 +24,6 @@
  */
 namespace local_quercus_tasks;
 
-defined('MOODLE_INTERNAL') || die();
-
 use stdClass;
 
 trait helper_trait {
@@ -74,12 +72,13 @@ trait helper_trait {
         // Scales.
         $grademarkexemptscale = $this->getDataGenerator()->create_scale([
                 'name' => 'grademarkexemptscale',
-                'scale' => implode(',', range(0, 100))
+                'scale' => implode(',', range(0, 100)),
             ]);
         set_config('grademarkexemptscale', $grademarkexemptscale->id, 'local_quercus_tasks');
         $grademarkscale = $this->getDataGenerator()->create_scale([
                 'name' => 'grademarkscale',
-                'scale' => 'N,S,F3,F2,F1,D3,D2,D1,C3,C2,C1,B3,B2,B1,A4,A3,A2,A1']);
+                'scale' => 'N,S,F3,F2,F1,D3,D2,D1,C3,C2,C1,B3,B2,B1,A4,A3,A2,A1',
+            ]);
         set_config('grademarkscale', $grademarkscale->id, 'local_quercus_tasks');
 
         // Feedback settings.
@@ -162,7 +161,7 @@ trait helper_trait {
      */
     public function turnitin_defaults() {
         global $DB;
-        $fields = array(
+        $fields = [
             'use_turnitin' => 1,
             'use_turnitin_lock' => 1,
             'plagiarism_show_student_report' => 1,
@@ -175,7 +174,8 @@ trait helper_trait {
             'plagiarism_report_gen' => 1,
             'plagiarism_exclude_biblio' => 0,
             'plagiarism_exclude_quoted' => 0,
-            'plagiarism_exclude_matches' => 0);
+            'plagiarism_exclude_matches' => 0,
+        ];
         foreach ($fields as $key => $value) {
             $entry = new stdClass();
             $entry->cm = null;

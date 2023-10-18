@@ -24,10 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
-    'local/quercus_tasks:releasegrades' => array(
+$capabilities = [
+    'local/quercus_tasks:releasegrades' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => []
-    )
-);
+        'archetypes' => [],
+    ],
+];

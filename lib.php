@@ -35,16 +35,6 @@ require_once(dirname(__FILE__) . '/../../mod/assign/lib.php');
 require_once(dirname(__FILE__) . '/../../mod/assign/locallib.php');
 
 /**
- * @deprecated 3.9 I don't think this has ever been used.
- */
-class local_create_assign extends assign {
-
-    public function __construct($coursemodulecontext, $coursemodule, $course) {
-        parent::__construct($coursemodulecontext, $coursemodule, $course);
-    }
-}
-
-/**
  * Creates an assignment for a course with given quercusdata
  *
  * @param object $course
@@ -151,7 +141,7 @@ function insert_assign($course, $quercusdata, $formdataconfig) {
     $newmod = $newassign->add_instance($formdata, true);
 
     // Get module.
-    $modassign = $DB->get_record('modules', array('name' => 'assign'), '*', MUST_EXIST);
+    $modassign = $DB->get_record('modules', ['name' => 'assign'], '*', MUST_EXIST);
 
     // Insert to course_modules table.
     $module = new stdClass();
@@ -219,6 +209,11 @@ function insert_assign($course, $quercusdata, $formdataconfig) {
     return $newcm;
 }
 
+/**
+ * Create assignments from datafile
+ *
+ * @return void
+ */
 function create_assignments() {
     global $CFG, $DB;
     // Get data.
@@ -257,7 +252,7 @@ function create_assignments() {
         foreach ($array as $elem) {
             foreach ($elem as $value) {
                 $unitinstance = $value['moduleInstance']; // Course.
-                $course = $DB->get_record('course', array('idnumber' => $unitinstance));
+                $course = $DB->get_record('course', ['idnumber' => $unitinstance]);
 
                 $quercusdata = new stdClass;
 
@@ -303,10 +298,11 @@ function create_assignments() {
                                                         INNER JOIN {local_quercus_tasks_sittings} s ON s.assign = cm.instance
                                                         WHERE cm.course = ?
                                                         AND cm.idnumber = ?
-                                                        AND s.sitting = ?', array (
+                                                        AND s.sitting = ?', [
                                                             $course->id,
                                                             $quercusdata->assignmentidnumber,
-                                                            $quercusdata->sitting)
+                                                            $quercusdata->sitting,
+                                                        ]
                                                         );
 
                         if (!$module) {
@@ -337,7 +333,13 @@ function create_assignments() {
     }
 }
 
-// Functions for exporting grades.
+/**
+ * Export grades
+ *
+ * @param int $scaleid
+ * @param int $grade
+ * @return int
+ */
 function convert_grade($scaleid, $grade) {
     if ($scaleid == get_config('local_quercus_tasks', 'grademarkscale')) { // Solent gradescale.
         $converted = -1;
@@ -410,10 +412,21 @@ function convert_grade($scaleid, $grade) {
     return $converted;
 }
 
+/**
+ * Store grades in table
+ *
+ * @param object $cm
+ * @param object $sitting
+ * @param object $course
+ * @param object $gradeinfo
+ * @param int $grade
+ * @param object $student
+ * @return int
+ */
 function insert_log($cm, $sitting, $course, $gradeinfo, $grade, $student) {
     global $DB;
     $exists = $DB->get_record_sql('SELECT COUNT(*) AS total FROM {local_quercus_grades} WHERE assign = ? and student = ?',
-        array($cm->instance, $student->id));
+        [$cm->instance, $student->id]);
 
     if ($exists->total != 1) {
         // Insert into table.
@@ -437,6 +450,12 @@ function insert_log($cm, $sitting, $course, $gradeinfo, $grade, $student) {
     }
 }
 
+/**
+ * Update log
+ *
+ * @param array $response
+ * @return int
+ */
 function update_log($response) {
     global $DB;
     $moduleinstanceid = null;
@@ -464,7 +483,7 @@ function update_log($response) {
 
         $error = $val['error'][0]['detail'] ? $val['error'][0]['detail'] : null;
 
-        $params = array(
+        $params = [
             $response['ErrorCode'],
             $response['ParentRequestId'],
             $val['requestid'],
@@ -474,8 +493,8 @@ function update_log($response) {
             $val['moduleinstanceid'],
             $val['academicsession'] . '_' . $val['assessmentcode'],
             $val['moodlestudentid'],
-            $val['assessmentsittingcode']
-        );
+            $val['assessmentsittingcode'],
+        ];
         $recordid = $DB->execute($sql, $params);
         $moduleinstanceid = $val['moduleinstanceid'];
 
@@ -483,6 +502,11 @@ function update_log($response) {
     return $moduleinstanceid;
 }
 
+/**
+ * Get grades to send to Quercus
+ *
+ * @return array
+ */
 function get_retry_list() {
     global $DB;
     // Get grades to be re-processed and add to array.
@@ -517,7 +541,7 @@ function get_retry_list() {
                     WHERE response IS NULL
                     ORDER BY qg.id');
 
-    $coursemodule = array (
+    $coursemodule = [
         "moodlestudentid" => "",
         "studentid" => "",
         "name" => "" ,
@@ -532,14 +556,14 @@ function get_retry_list() {
         "assessmentresult" => "",
         "unitleadername" => "",
         "unitleadersurname" => "",
-        "unitleaderemail" => ""
-    );
+        "unitleaderemail" => "",
+    ];
 
     $moduleinstanceid = null;
-    $dataarray = array();
+    $dataarray = [];
     foreach ($reprocess as $value) {
         if ($value->moduleinstanceid != $moduleinstanceid) {
-            $dataarray[$value->moduleinstanceid] = array();
+            $dataarray[$value->moduleinstanceid] = [];
         }
         $moduleinstanceid = $value->moduleinstanceid;
     }
@@ -569,6 +593,14 @@ function get_retry_list() {
     }
 }
 
+/**
+ * Match grades
+ *
+ * @param array $allgrades
+ * @param object $student
+ * @param object $gradeinfo
+ * @return string
+ */
 function match_grades($allgrades, $student, $gradeinfo) {
     $grade = (string) 0;
     foreach ($allgrades as $gv) {
@@ -581,6 +613,12 @@ function match_grades($allgrades, $student, $gradeinfo) {
     return $grade;
 }
 
+/**
+ * Get new grades and insert into grade table
+ *
+ * @param int $lastruntime
+ * @return bool
+ */
 function get_new_grades($lastruntime) {
     global $DB;
 
@@ -593,7 +631,7 @@ function get_new_grades($lastruntime) {
         WHERE itemmodule = ?
             AND idnumber != ?
             AND (locked > ? AND locktime = ?)',
-        array('assign', '', $lastruntime, 0)); // Change to $time 1517317200.
+        ['assign', '', $lastruntime, 0]); // Change to $time 1517317200.
 
     if (count($assignids) > 0) {
         foreach ($assignids as $v) {
@@ -608,13 +646,13 @@ function get_new_grades($lastruntime) {
             $course = get_course($cm->course);
             // Get sittingdescription.
             $sitting = $DB->get_record_sql('SELECT id, sitting_desc FROM {local_quercus_tasks_sittings} WHERE assign = ?',
-                array($v->iteminstance));
+                [$v->iteminstance]);
             // Get user that locked the grades and scale id.
             $gradeinfo = $DB->get_record_sql('SELECT u.id, u.firstname, u.lastname, u.email, MAX(h.timemodified), h.scaleid
                                         FROM {grade_items_history} h
                                         JOIN {user} u ON u.id = h.loggeduser
                                         WHERE (h.itemmodule = ? AND h.iteminstance = ?)
-                                        AND locked > ?', array('assign', $cm->instance, $lastruntime));
+                                        AND locked > ?', ['assign', $cm->instance, $lastruntime]);
 
             $users = get_role_users(
                 5,
@@ -650,6 +688,12 @@ function get_new_grades($lastruntime) {
     }
 }
 
+/**
+ * Export grades to quercus
+ *
+ * @param array $dataready
+ * @return string
+ */
 function export_grades($dataready) {
     // Send data.
     $ch = curl_init();
@@ -657,9 +701,10 @@ function export_grades($dataready) {
 
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
-        'Content-Length: ' . strlen($dataready))
+        'Content-Length: ' . strlen($dataready),
+        ]
     );
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
     curl_setopt($ch, CURLOPT_POSTFIELDS, $dataready);
@@ -685,6 +730,11 @@ function export_grades($dataready) {
     }
 }
 
+/**
+ * Update assignment dates
+ *
+ * @return void
+ */
 function update_dates() {
     global $CFG, $DB;
     $result = file_get_contents($CFG->dataroot . get_config('local_quercus_tasks', 'datafile'));
@@ -703,7 +753,7 @@ function update_dates() {
                 $sitting = $value["sitting"];
                 $assignmentidnumber = $academicyear  . '_' . $assessmentcode;
                 if (isset($value["dueDate"])) {
-                    $course = $DB->get_record('course', array('idnumber' => $unitinstance));
+                    $course = $DB->get_record('course', ['idnumber' => $unitinstance]);
 
                     if ($course) {
                         $assign = $DB->get_record_sql(
@@ -713,7 +763,7 @@ function update_dates() {
                             INNER JOIN {assign} a ON a.id = cm.instance
                             WHERE cm.course = ?
                             AND cm.idnumber = ?
-                            AND s.sitting = ?', array($course->id, $assignmentidnumber, $sitting));
+                            AND s.sitting = ?', [$course->id, $assignmentidnumber, $sitting]);
 
                         if ($assign) {
                             // Available from date.
@@ -786,7 +836,6 @@ function update_dates() {
                                 $newdates = new stdClass();
                                 $newdates->id = $assign->id;
                                 $newdates->duedate = $duedate;
-                                // $newdates->allowsubmissionsfromdate = $availablefrom;
                                 $newdates->cutoffdate = $cutoffdate;
                                 $newdates->gradingduedate = $gradingduedate;
                                 $update = $DB->update_record('assign', $newdates, false);
@@ -798,9 +847,9 @@ function update_dates() {
                                 $update = $DB->update_record('course_modules', $newcompletion, false);
 
                                 // Update assignment calendar events.
-                                $assignobj = $DB->get_record('assign', array('id' => $assign->id));
-                                $courseobj = $DB->get_record('course', array('id' => $course->id));
-                                $cmobj = $DB->get_record('course_modules', array('id' => $assign->cm_id));
+                                $assignobj = $DB->get_record('assign', ['id' => $assign->id]);
+                                $courseobj = $DB->get_record('course', ['id' => $course->id]);
+                                $cmobj = $DB->get_record('course_modules', ['id' => $assign->cm_id]);
                                 $cmobj->modname = 'assign';
                                 $refreshevent = course_module_calendar_event_update_process($assignobj, $cmobj);
                                 // Output result to cron.
@@ -833,6 +882,11 @@ function update_dates() {
     }
 }
 
+/**
+ * Updates Staff enrolments from Quercus
+ *
+ * @return void
+ */
 function staff_enrolments() {
     global $DB;
     // Connects to the Quercus view.
@@ -864,13 +918,13 @@ function staff_enrolments() {
                     $insertdata[] = [
                         'role' => $row['ROLE'],
                         'useridnumber' => $row['IDNUMBER'],
-                        'courseidnumber' => $row['COURSE']
+                        'courseidnumber' => $row['COURSE'],
                     ];
             }
 
             // Count the rows in each table to work out which one is being used.
-            $table1count = $DB->count_records('local_quercus_staff_1', array());
-            $table2count = $DB->count_records('local_quercus_staff_2', array());
+            $table1count = $DB->count_records('local_quercus_staff_1', []);
+            $table2count = $DB->count_records('local_quercus_staff_2', []);
 
             if ($table1count != 0 && $table2count == 0) {
                 // Insert data to secondary table.
@@ -882,7 +936,7 @@ function staff_enrolments() {
 
                 // Truncate secondary table do this last.
                 $truncated1 = $DB->execute("TRUNCATE TABLE {local_quercus_staff_1}");
-                $viewcount = $DB->count_records('quercus_staff', array());
+                $viewcount = $DB->count_records('quercus_staff', []);
                 $mtrace = 'Table 2 updated, Table 1 truncated ('. $truncated1 .') - View rows = ' . $viewcount;
             } else if ($table1count == 0 && $table2count != 0) {
                 // Insert data to secondary table.
@@ -894,7 +948,7 @@ function staff_enrolments() {
 
                 // Truncate secondary table do this last.
                 $truncated2 = $DB->execute("TRUNCATE TABLE {local_quercus_staff_2}");
-                $viewcount = $DB->count_records('quercus_staff', array());
+                $viewcount = $DB->count_records('quercus_staff', []);
                 $mtrace = 'Table 1 updated, Table 2 truncated ('. $truncated2 .') - View rows = ' . $viewcount;
             } else if ($table1count != 0 && $table2count != 0) {
                 if ($table1count > $table2count) {
@@ -908,7 +962,7 @@ function staff_enrolments() {
                                 SELECT * FROM {$DB->get_prefix()}local_quercus_staff_2");
                     // Truncate secondary table.
                     $truncated1 = $DB->execute("TRUNCATE TABLE {local_quercus_staff_1}");
-                    $viewcount = $DB->count_records('quercus_staff', array());
+                    $viewcount = $DB->count_records('quercus_staff', []);
                     $mtrace = 'Table 2 updated and truncated (' . $truncated2. '),' .
                         'Table 1 truncated (' . $truncated1 . ') - View rows = ' . $viewcount;
                 } else if ($table1count < $table2count || $table1count == $table2count) {
@@ -922,7 +976,7 @@ function staff_enrolments() {
                             SELECT * FROM {$DB->get_prefix()}local_quercus_staff_1");
                     // Truncate secondary table.
                     $truncated2 = $DB->execute("TRUNCATE TABLE {local_quercus_staff_2}");
-                    $viewcount = $DB->count_records('quercus_staff', array());
+                    $viewcount = $DB->count_records('quercus_staff', []);
                     $mtrace = 'Table 1 updated and truncated (' .$truncated1 . '),' .
                         'Table 2 truncated (' . $truncated2 . ') - View rows = ' . $viewcount;
                 }
@@ -947,6 +1001,11 @@ function staff_enrolments() {
     }
 }
 
+/**
+ * Get new modules from Quercus
+ *
+ * @return void
+ */
 function get_new_modules() {
     global $DB;
     // Connects to the Quercus view.
@@ -981,7 +1040,7 @@ function get_new_modules() {
                     'category_path' => $row['CATEGORY_PATH'],
                     'idnumber' => $row['IDNUMBER'],
                     'startdate' => $row['STARTDATE'],
-                    'enddate' => $row['ENDDATE']
+                    'enddate' => $row['ENDDATE'],
                 ];
             }
             $DB->execute("TRUNCATE TABLE {local_quercus_modules}");
@@ -997,6 +1056,11 @@ function get_new_modules() {
     }
 }
 
+/**
+ * Create new modules
+ *
+ * @return void
+ */
 function create_new_modules() {
     global $DB;
     $acadyear = get_config('local_quercus_tasks', 'acadyear');
@@ -1005,7 +1069,7 @@ function create_new_modules() {
         SELECT id, fullname, shortname, summary, category_path, idnumber, startdate, enddate
         FROM {local_quercus_modules}
         WHERE idnumber NOT IN (SELECT idnumber FROM {course})
-        AND acadyear = ?", array($acadyear), 0 , $modulelimit);
+        AND acadyear = ?", [$acadyear], 0 , $modulelimit);
     if (count($newmodules) == 0) {
         mtrace(get_string('nomodules', 'local_quercus_tasks'));
         return;
@@ -1057,17 +1121,17 @@ function create_new_modules() {
         rebuild_course_cache($newcourse->id);
         // Create manual enrolment method.
         $plugin = enrol_get_plugin('manual');
-        $instance = $DB->get_record('enrol', array('courseid' => $newcourse->id, 'enrol' => 'manual'), '*');
+        $instance = $DB->get_record('enrol', ['courseid' => $newcourse->id, 'enrol' => 'manual'], '*');
 
         if (!$instance) {
-            $fields = array(
+            $fields = [
                 'status'          => '0',
                 'roleid'          => '5',
                 'enrolperiod'     => '0',
                 'expirynotify'    => '0',
                 'notifyall'       => '0',
-                'expirythreshold' => '86400'
-            );
+                'expirythreshold' => '86400',
+            ];
             $instance = $plugin->add_instance($newcourse, $fields);
         }
 
@@ -1079,6 +1143,11 @@ function create_new_modules() {
     }
 }
 
+/**
+ * Update modules
+ *
+ * @return void
+ */
 function update_modules() {
     global $DB;
     $updatemodules = $DB->get_records_sql(
@@ -1113,6 +1182,11 @@ function update_modules() {
     }
 }
 
+/**
+ * Get new courses from Quercus
+ *
+ * @return void
+ */
 function get_new_courses() {
     global $DB;
     // Connects to the Quercus view.
@@ -1148,7 +1222,7 @@ function get_new_courses() {
                         'category_path' => $row['CATEGORY_PATH'],
                         'idnumber' => $row['IDNUMBER'],
                         'startdate' => $row['STARTDATE'],
-                        'enddate' => $row['ENDDATE']
+                        'enddate' => $row['ENDDATE'],
                     ];
                 }
             }
@@ -1166,12 +1240,17 @@ function get_new_courses() {
     }
 }
 
+/**
+ * Delete courses
+ *
+ * @return void
+ */
 function delete_courses() {
     global $DB;
     $courselimit = get_config('local_quercus_tasks', 'courselimit');
     $categories = get_config('local_quercus_tasks', 'deletecategories');
     $categories = explode(',', $categories);
-    $inparams = array();
+    $inparams = [];
     list($inorequalsql, $inparams) = $DB->get_in_or_equal($categories, SQL_PARAMS_NAMED, '', true);
     $sql = "SELECT *
             FROM {course}
@@ -1203,8 +1282,14 @@ function delete_courses() {
     } else {
         mtrace(get_string('nodelete', 'local_quercus_tasks'));
     }
-
 }
+
+/**
+ * Is this assessment an exam
+ *
+ * @param string $assessmentcode
+ * @return bool
+ */
 function check_if_exam($assessmentcode) {
     if (strpos('x'.$assessmentcode, 'EXAM') == 1) {
         return true;
@@ -1212,26 +1297,18 @@ function check_if_exam($assessmentcode) {
     return false;
 }
 
+/**
+ * Email any errors
+ *
+ * @param string $to
+ * @param string $subject
+ * @param string $message
+ * @return void
+ */
 function email_error($to, $subject, $message) {
     global $CFG;
     $headers = "From: " . $CFG->noreplyaddress . " \r\n";
     $headers .= "MIME-Version: 1.0\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
     mail($to, $subject, $message, $headers);
-}
-
-/**
- * Using the extend_navigation as a proxy to get the $PAGE object.
- *
- * @param global_navigation $navigation
- * @return void
- */
-function local_quercus_tasks_extend_navigation(global_navigation $navigation) {
-    global $PAGE;
-    if ($PAGE->pagetype == 'mod-assign-mod') {
-        // Going to stick with core change, for now, but might come back to this.
-        // @codingStandardsIgnoreStart
-        // $PAGE->requires->js_call_amd('local_quercus_tasks/assign', 'modedit');
-        // @codingStandardsIgnoreEnd
-    }
 }
