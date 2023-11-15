@@ -217,7 +217,11 @@ function insert_assign($course, $quercusdata, $formdataconfig) {
 function create_assignments() {
     global $CFG, $DB;
     // Get data.
-    $result = file_get_contents($CFG->dataroot . get_config('local_quercus_tasks', 'datafile'));
+    $datafile = get_config('local_quercus_tasks', 'datafile');
+    if (empty($datafile)) {
+        return;
+    }
+    $result = file_get_contents($CFG->dataroot . $datafile);
 
     if ($result) {
         $xml = simplexml_load_string($result, "SimpleXMLElement", LIBXML_NOCDATA);
@@ -510,7 +514,12 @@ function update_log($response) {
 function get_retry_list() {
     global $DB;
     // Get grades to be re-processed and add to array.
+
     $modulelimit = get_config('local_quercus_tasks', 'exportmodulelimit');
+    if (empty($modulelimit)) {
+        $modulelimit = 1;
+    }
+
     $reprocess = $DB->get_records_sql('SELECT
                     qg.id, u.id "moodlestudentid", u.idnumber "studentid", u.firstname "name", u.lastname "surname",
                     SUBSTRING_INDEX(c.shortname,"_",1) modulecode, c.shortname moduleinstanceid, c.fullname moduledescription,
@@ -737,7 +746,11 @@ function export_grades($dataready) {
  */
 function update_dates() {
     global $CFG, $DB;
-    $result = file_get_contents($CFG->dataroot . get_config('local_quercus_tasks', 'datafile'));
+    $datafile = get_config('local_quercus_tasks', 'datafile');
+    if (empty($datafile)) {
+        return;
+    }
+    $result = file_get_contents($CFG->dataroot . $datafile);
 
     if ($result) {
         $xml = simplexml_load_string($result, "SimpleXMLElement", LIBXML_NOCDATA);
@@ -894,6 +907,10 @@ function staff_enrolments() {
     $password = get_config('local_quercus_tasks', 'connectionpassword');
     $database = get_config('local_quercus_tasks', 'connectiondatabase');
     $table = get_config('local_quercus_tasks', 'enrolmentview');
+    if (!$host || !$password || !$database || !$table) {
+        // Can't run anything; don't try.
+        return;
+    }
     if (!function_exists('oci_connect')) {
         $to = get_config('local_quercus_tasks', 'emaillt');
         $subject = "Error connecting to Quercus for updating local_quercus_staff table, email sent to " .
@@ -1013,6 +1030,9 @@ function get_new_modules() {
     $password = get_config('local_quercus_tasks', 'connectionpassword');
     $database = get_config('local_quercus_tasks', 'connectiondatabase');
     $table = get_config('local_quercus_tasks', 'modulesview');
+    if (!$host || !$password || !$database || !$table) {
+        return;
+    }
     if (!function_exists('oci_connect')) {
         $to = get_config('local_quercus_tasks', 'emaillt');
         $subject = "Error connecting to Quercus for updating local_quercus_modules table, email sent to "
@@ -1194,6 +1214,9 @@ function get_new_courses() {
     $password = get_config('local_quercus_tasks', 'connectionpassword');
     $database = get_config('local_quercus_tasks', 'connectiondatabase');
     $table = get_config('local_quercus_tasks', 'coursesview');
+    if (!$host || !$password || !$database || !$table) {
+        return;
+    }
     if (!function_exists('oci_connect')) {
         $to = get_config('local_quercus_tasks', 'emaillt');
         $subject = "Error connecting to Quercus for updating local_quercus_courses table, email sent to " .
