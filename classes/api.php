@@ -60,7 +60,7 @@ class api {
      * Sitting will be null if it doesn't exist.
      *
      * @param int $courseid
-     * @return array|false
+     * @return array
      */
     public static function get_quercus_assignments($courseid) {
         global $DB;
