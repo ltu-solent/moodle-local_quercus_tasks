@@ -49,7 +49,12 @@ function insert_assign($course, $quercusdata, $formdataconfig) {
     $formdata->id = null;
     $formdata->course = $course->id;
     $formdata->name = $quercusdata->assessmentdescription;
-    $formdata->intro = "";
+    if ($quercusdata->sittingdescription != 'FIRST_SITTING') {
+        $formdata->intro = "";
+    } else {
+        $desc = get_config('local_solsits', 'assignmentmessage_studentreattempt') ?? '';
+        $formdata->intro = $desc;
+    }
     $formdata->introformat = 1;
     $formdata->alwaysshowdescription = 1;
     $formdata->nosubmissions = 0;
@@ -167,7 +172,8 @@ function insert_assign($course, $quercusdata, $formdataconfig) {
     $module->groupingid = 0;
     $module->completiongradeitemnumber = null;
     $module->completionview = 0;
-    $module->completionexpected = $formdata->duedate;
+    // $module->completionexpected = $formdata->duedate;
+    $module->completionexpected = 0;
     $module->showdescription = 1;
     $module->availability = null;
     $module->deletioninprogress = 0;
@@ -856,7 +862,8 @@ function update_dates() {
                                 // Update completion date.
                                 $newcompletion = new stdClass();
                                 $newcompletion->id = $assign->cm_id;
-                                $newcompletion->completionexpected = $duedate;
+                                // $newcompletion->completionexpected = $duedate;
+                                $newcompletion->completionexpected = 0;
                                 $update = $DB->update_record('course_modules', $newcompletion, false);
 
                                 // Update assignment calendar events.
