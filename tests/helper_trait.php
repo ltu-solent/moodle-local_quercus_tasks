@@ -24,6 +24,7 @@
  */
 namespace local_quercus_tasks;
 
+use context_course;
 use stdClass;
 
 trait helper_trait {
@@ -137,7 +138,7 @@ trait helper_trait {
             $tiiform->$name = $value;
         }
         // This is how default tii settings are set on the assignment.
-        $tii->save_form_elements($tiiform);
+        $tii->save_form_data($tiiform);
         $course = $DB->get_record('course', ['id' => $courseid]);
         // IRL we would be calling get_course_data and this will set up the course
         // if it doesn't exist. For testing purposes we're going to spoof this.
