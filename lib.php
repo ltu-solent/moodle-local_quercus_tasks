@@ -172,7 +172,6 @@ function insert_assign($course, $quercusdata, $formdataconfig) {
     $module->groupingid = 0;
     $module->completiongradeitemnumber = null;
     $module->completionview = 0;
-    // $module->completionexpected = $formdata->duedate;
     $module->completionexpected = 0;
     $module->showdescription = 1;
     $module->availability = null;
@@ -862,7 +861,6 @@ function update_dates() {
                                 // Update completion date.
                                 $newcompletion = new stdClass();
                                 $newcompletion->id = $assign->cm_id;
-                                // $newcompletion->completionexpected = $duedate;
                                 $newcompletion->completionexpected = 0;
                                 $update = $DB->update_record('course_modules', $newcompletion, false);
 
