@@ -86,7 +86,7 @@ class lib_test extends advanced_testcase {
      * Test creating new modules.
      *
      * @dataProvider new_modules_provider
-     * @param object $row
+     * @param array $row
      * @param int $acadyear
      * @param bool $status
      * @param string $expectedoutput
@@ -108,6 +108,7 @@ class lib_test extends advanced_testcase {
             'intro' => 'Label from Template.',
         ]);
         // Create a quercus module - for testing purposes we don't get it directly from Quercus.
+        /** @var local_quercus_tasks_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('local_quercus_tasks');
         $quercusmodule = $generator->create_quercus_module($row);
         // Set the academic year from the dataProvider - not necessarily the same as the module.
@@ -245,6 +246,7 @@ class lib_test extends advanced_testcase {
             'enddate' => $etime->getTimestamp(),
         ]);
 
+        /** @var local_quercus_tasks_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('local_quercus_tasks');
         // The quercus_modules table is truncated between runs, so no need to create the
         // original entry.
