@@ -40,7 +40,7 @@ require_once($CFG->dirroot . '/local/quercus_tasks/lib.php');
  * Test lib file
  * @group sol
  */
-class lib_test extends advanced_testcase {
+final class lib_test extends advanced_testcase {
 
     use helper_trait;
 
@@ -50,7 +50,7 @@ class lib_test extends advanced_testcase {
      * @covers \insert_assign
      * @return void
      */
-    public function test_insert_assign() {
+    public function test_insert_assign(): void {
         global $DB;
         $this->resetAfterTest();
         $this->bitnbobs();
@@ -94,7 +94,7 @@ class lib_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_create_new_modules($row, $acadyear, $status, $expectedoutput) {
+    public function test_create_new_modules($row, $acadyear, $status, $expectedoutput): void {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -212,7 +212,7 @@ class lib_test extends advanced_testcase {
      * @return void
      * @covers \update_module_dates
      */
-    public function test_update_module_dates($old, $new, $expectedoutput) {
+    public function test_update_module_dates($old, $new, $expectedoutput): void {
         global $DB, $USER;
         $this->resetAfterTest();
         $this->setAdminUser();

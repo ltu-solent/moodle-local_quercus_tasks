@@ -31,7 +31,7 @@ class local_quercus_tasks_generator extends component_generator_base {
     /**
      * How many assignments have been created so far
      *
-     * @var integer
+     * @var int
      */
     public $assigncount = 0;
     /**

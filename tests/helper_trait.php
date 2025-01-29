@@ -27,9 +27,10 @@ namespace local_quercus_tasks;
 use context_course;
 use stdClass;
 
+/**
+ * Some reusable test functions
+ */
 trait helper_trait {
-
-    public $faketiicomms;
 
     /**
      * Sets various settings required for mininum function
