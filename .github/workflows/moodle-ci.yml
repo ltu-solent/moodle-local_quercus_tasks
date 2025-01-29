@@ -35,7 +35,7 @@ jobs:
             # Main job. Run all checks that do not require setup and only need to be run once.
             runchecks: 'all'
             moodle-branch: 'SSU_405_DEV'
-            database: 'pgsql'
+            database: 'mariadb'
           - php: '8.1'
             moodle-branch: 'SSU_405_DEV'
             database: 'mariadb'
