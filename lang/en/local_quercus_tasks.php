@@ -41,7 +41,7 @@ $string['connectionhost'] = 'Quercus connection host';
 $string['connectionpassword'] = 'Quercus connection password';
 $string['connectionsettings'] = 'Data import connection settings';
 $string['connectionsettingserror'] = 'The settings for the connection are not correct.';
-$string['courselimit'] = 'Course limit';
+$string['courselimit'] = 'Number of courses to delete per batch';
 $string['coursesview'] = 'Courses view name';
 $string['createmodulelimit'] = 'Number of modules to create per batch';
 $string['createmodulessettings'] = 'Create new modules settings';
@@ -51,7 +51,7 @@ $string['cutoffintervalsecondplus'] = 'Cut off date interval in weeks for second
 
 $string['datafile'] = 'Assignment XML data file path';
 $string['dataviews'] = 'Quercus data views';
-$string['deletecategories'] = 'Delete categories';
+$string['deletecategories'] = 'Comma separated list of category IDs to delete courses from';
 $string['deletecourses'] = 'Delete courses';
 $string['deleted'] = 'Deleted {$a->shortname} - {$a->fullname}';
 $string['deleting'] = 'Deleting {$a->shortname} - {$a->fullname}';
