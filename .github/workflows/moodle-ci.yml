@@ -34,10 +34,10 @@ jobs:
           - php: '8.3'
             # Main job. Run all checks that do not require setup and only need to be run once.
             runchecks: 'all'
-            moodle-branch: 'SSU_405_DEV'
+            moodle-branch: 'SSU_405_STABLE'
             database: 'mariadb'
           - php: '8.1'
-            moodle-branch: 'SSU_405_DEV'
+            moodle-branch: 'SSU_405_STABLE'
             database: 'mariadb'
 
     steps:
@@ -67,9 +67,9 @@ jobs:
 
       - name: Install moodle-plugin-ci
         run: |
-            moodle-plugin-ci add-plugin --branch MOODLE_405_DEV ltu-solent/moodle-assign_feedback_doublemark
-            moodle-plugin-ci add-plugin --branch MOODLE_405_DEV ltu-solent/moodle-assign_feedback_misconduct
-            moodle-plugin-ci add-plugin --branch MOODLE_405_DEV ltu-solent/moodle-theme_solent
+            moodle-plugin-ci add-plugin --branch MOODLE_405_STABLE ltu-solent/moodle-assign_feedback_doublemark
+            moodle-plugin-ci add-plugin --branch MOODLE_405_STABLE ltu-solent/moodle-assign_feedback_misconduct
+            moodle-plugin-ci add-plugin --branch MOODLE_405_STABLE ltu-solent/moodle-theme_solent
             moodle-plugin-ci add-plugin --branch SSU_main ltu-solent/moodle-format_onetopic
             moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
